@@ -145,6 +145,66 @@ class SetStatsComputer {
     return (aces / receiveErrors).toStringAsFixed(2);
   }
 
+  /// Kill:Attack Error ratio
+  String getKillToAttackErrorRatio() {
+    final kills = countKills();
+    final attackErrors = countAttackErrors();
+    if (attackErrors == 0) return '—';
+    return (kills / attackErrors).toStringAsFixed(2);
+  }
+
+  /// Count 3+ point runs for us
+  int countThreePlusPointRunsUs() {
+    int runs = 0;
+    int currentRun = 0;
+    
+    for (var rally in rallies) {
+      if (rally.weWon) {
+        currentRun++;
+      } else {
+        if (currentRun >= 3) {
+          runs++;
+        }
+        currentRun = 0;
+      }
+    }
+    // Check final run
+    if (currentRun >= 3) {
+      runs++;
+    }
+    return runs;
+  }
+
+  /// Count 3+ point runs for them
+  int countThreePlusPointRunsThem() {
+    int runs = 0;
+    int currentRun = 0;
+    
+    for (var rally in rallies) {
+      if (!rally.weWon) {
+        currentRun++;
+      } else {
+        if (currentRun >= 3) {
+          runs++;
+        }
+        currentRun = 0;
+      }
+    }
+    // Check final run
+    if (currentRun >= 3) {
+      runs++;
+    }
+    return runs;
+  }
+
+  /// Points scored ratio (our points : their points)
+  String getPointsRatio() {
+    final ourPoints = getTotalOurPoints();
+    final theirPoints = getTotalOpponentPoints();
+    if (theirPoints == 0) return '—';
+    return (ourPoints / theirPoints).toStringAsFixed(2);
+  }
+
   /// Returns all stats as a map
   Map<String, dynamic> getStatsMap() => {
         'aces': countAces(),

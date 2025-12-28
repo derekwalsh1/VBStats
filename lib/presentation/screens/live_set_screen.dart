@@ -4,6 +4,7 @@ import 'package:vbstats/domain/entities/enums.dart';
 import 'package:vbstats/domain/entities/match_entities.dart';
 import 'package:vbstats/presentation/providers/live_set_provider.dart';
 import 'package:vbstats/presentation/providers/match_providers.dart';
+import 'package:vbstats/presentation/providers/color_scheme_provider.dart';
 import 'package:vbstats/core/utils/stats_calculator.dart';
 import 'package:vbstats/core/utils/set_logic.dart';
 import 'package:vbstats/presentation/widgets/momentum_chart.dart';
@@ -48,6 +49,10 @@ class LiveSetScreen extends ConsumerWidget {
         ),
         actions: [
           IconButton(
+            icon: const Icon(Icons.palette),
+            onPressed: () => _showColorSchemeDialog(context, ref),
+          ),
+          IconButton(
             icon: const Icon(Icons.undo),
             onPressed: rallies.isEmpty
                 ? null
@@ -78,15 +83,25 @@ class LiveSetScreen extends ConsumerWidget {
                     width: isTablet ? (constraints.maxWidth - 36) / 2 : constraints.maxWidth - 24,
                     child: _buildScoringButtons(context, ref, liveSetState),
                   ),
-                  // Scoring breakdown
+                  // Scoring breakdown - Us
                   SizedBox(
                     width: isTablet ? (constraints.maxWidth - 36) / 2 : constraints.maxWidth - 24,
-                    child: _buildScoringBreakdown(context, statsComputer),
+                    child: _buildScoringBreakdownUs(context, ref, statsComputer),
+                  ),
+                  // Scoring breakdown - Them
+                  SizedBox(
+                    width: isTablet ? (constraints.maxWidth - 36) / 2 : constraints.maxWidth - 24,
+                    child: _buildScoringBreakdownThem(context, ref, statsComputer),
+                  ),
+                  // Error breakdown - Us
+                  SizedBox(
+                    width: isTablet ? (constraints.maxWidth - 36) / 2 : constraints.maxWidth - 24,
+                    child: _buildErrorBreakdownUs(context, ref, statsComputer),
                   ),
                   // Performance stats
                   SizedBox(
                     width: isTablet ? (constraints.maxWidth - 36) / 2 : constraints.maxWidth - 24,
-                    child: _buildPerformanceStats(context, statsComputer),
+                    child: _buildPerformanceStats(context, ref, statsComputer),
                   ),
                   // Rotation stats - Us
                   SizedBox(
@@ -500,7 +515,9 @@ class LiveSetScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildScoringBreakdown(BuildContext context, SetStatsComputer statsComputer) {
+  Widget _buildScoringBreakdownUs(BuildContext context, WidgetRef ref, SetStatsComputer statsComputer) {
+    final colorScheme = ref.read(colorSchemeProvider.notifier).currentScheme;
+    
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -508,42 +525,53 @@ class LiveSetScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'Scoring Breakdown',
+              'Scoring Breakdown - Us',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
-            Row(
+            GridView.count(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              crossAxisCount: 2,
+              mainAxisSpacing: 6,
+              crossAxisSpacing: 6,
+              childAspectRatio: 1.5,
               children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text('Us', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                      const SizedBox(height: 8),
-                      _buildStatRowWithThreshold('Aces', statsComputer.countAces(), 2, true),
-                      _buildStatRowWithThreshold('Kills', statsComputer.countKills(), 14, true),
-                      _buildStatRowWithThreshold('Blocks', statsComputer.countBlocks(), 1, true),
-                      _buildStatRowWithThreshold('Opp Errors', statsComputer.countOpponentErrors(), 8, true),
-                      const Divider(),
-                      _buildStatRow(context, 'Total', statsComputer.getTotalOurPoints(), bold: true),
-                    ],
-                  ),
+                _buildPerformanceTile(
+                  context,
+                  'Aces',
+                  statsComputer.countAces().toString(),
+                  'Serve aces',
+                  'Points scored from aces',
+                  color: statsComputer.countAces() >= 2 ? colorScheme.greenColor : colorScheme.grayColor,
+                  textColor: statsComputer.countAces() >= 2 ? colorScheme.greenTextColor : colorScheme.grayTextColor,
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text('Them', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                      const SizedBox(height: 8),
-                      _buildStatRowWithThreshold('Aces', statsComputer.countReceiveErrors(), 2, false),
-                      _buildStatRowWithThreshold('Kills', statsComputer.countDigErrors(), 14, false),
-                      _buildStatRowWithThreshold('Blocks', statsComputer.countCoverErrors(), 1, false),
-                      _buildStatRowWithThreshold('Our Errors', statsComputer.countOurOtherErrors(), 8, false),
-                      const Divider(),
-                      _buildStatRow(context, 'Total', statsComputer.getTotalOpponentPoints(), bold: true),
-                    ],
-                  ),
+                _buildPerformanceTile(
+                  context,
+                  'Kills',
+                  statsComputer.countKills().toString(),
+                  'Attack kills',
+                  'Points scored from kills',
+                  color: statsComputer.countKills() >= 14 ? colorScheme.greenColor : colorScheme.grayColor,
+                  textColor: statsComputer.countKills() >= 14 ? colorScheme.greenTextColor : colorScheme.grayTextColor,
+                ),
+                _buildPerformanceTile(
+                  context,
+                  'Blocks',
+                  statsComputer.countBlocks().toString(),
+                  'Block points',
+                  'Points scored from blocks',
+                  color: statsComputer.countBlocks() >= 1 ? colorScheme.greenColor : colorScheme.grayColor,
+                  textColor: statsComputer.countBlocks() >= 1 ? colorScheme.greenTextColor : colorScheme.grayTextColor,
+                ),
+                _buildPerformanceTile(
+                  context,
+                  'Opp Errors',
+                  statsComputer.countOpponentErrors().toString(),
+                  'Opponent errors',
+                  'Points from opponent errors',
+                  color: statsComputer.countOpponentErrors() >= 8 ? colorScheme.greenColor : colorScheme.grayColor,
+                  textColor: statsComputer.countOpponentErrors() >= 8 ? colorScheme.greenTextColor : colorScheme.grayTextColor,
                 ),
               ],
             ),
@@ -553,7 +581,177 @@ class LiveSetScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildPerformanceStats(BuildContext context, SetStatsComputer statsComputer) {
+  Widget _buildScoringBreakdownThem(BuildContext context, WidgetRef ref, SetStatsComputer statsComputer) {
+    final colorScheme = ref.read(colorSchemeProvider.notifier).currentScheme;
+    
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Scoring Breakdown - Them',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            GridView.count(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              crossAxisCount: 2,
+              mainAxisSpacing: 6,
+              crossAxisSpacing: 6,
+              childAspectRatio: 1.5,
+              children: [
+                _buildPerformanceTile(
+                  context,
+                  'Aces',
+                  statsComputer.countReceiveErrors().toString(),
+                  'Our receive errors',
+                  'Points from our receive errors',
+                  color: statsComputer.countReceiveErrors() >= 2 ? colorScheme.redColor : colorScheme.grayColor,
+                  textColor: statsComputer.countReceiveErrors() >= 2 ? colorScheme.redTextColor : colorScheme.grayTextColor,
+                ),
+                _buildPerformanceTile(
+                  context,
+                  'Kills',
+                  statsComputer.countDigErrors().toString(),
+                  'Our dig errors',
+                  'Points from our dig errors',
+                  color: statsComputer.countDigErrors() >= 14 ? colorScheme.redColor : colorScheme.grayColor,
+                  textColor: statsComputer.countDigErrors() >= 14 ? colorScheme.redTextColor : colorScheme.grayTextColor,
+                ),
+                _buildPerformanceTile(
+                  context,
+                  'Blocks',
+                  statsComputer.countCoverErrors().toString(),
+                  'Our cover errors',
+                  'Points from our cover errors',
+                  color: statsComputer.countCoverErrors() >= 1 ? colorScheme.redColor : colorScheme.grayColor,
+                  textColor: statsComputer.countCoverErrors() >= 1 ? colorScheme.redTextColor : colorScheme.grayTextColor,
+                ),
+                _buildPerformanceTile(
+                  context,
+                  'Our Errors',
+                  statsComputer.countOurOtherErrors().toString(),
+                  'Other errors',
+                  'Points from our other errors',
+                  color: statsComputer.countOurOtherErrors() >= 8 ? colorScheme.redColor : colorScheme.grayColor,
+                  textColor: statsComputer.countOurOtherErrors() >= 8 ? colorScheme.redTextColor : colorScheme.grayTextColor,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildErrorBreakdownUs(BuildContext context, WidgetRef ref, SetStatsComputer statsComputer) {
+    final colorScheme = ref.read(colorSchemeProvider.notifier).currentScheme;
+    
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Error Breakdown - Us',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            GridView.count(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              crossAxisCount: 2,
+              mainAxisSpacing: 6,
+              crossAxisSpacing: 6,
+              childAspectRatio: 1.5,
+              children: [
+                _buildPerformanceTile(
+                  context,
+                  'Attack',
+                  statsComputer.countAttackErrors().toString(),
+                  'Attack errors',
+                  'Total attack errors committed',
+                  color: colorScheme.grayColor,
+                  textColor: colorScheme.grayTextColor,
+                ),
+                _buildPerformanceTile(
+                  context,
+                  'Service',
+                  statsComputer.countServeErrors().toString(),
+                  'Service errors',
+                  'Total service errors committed',
+                  color: colorScheme.grayColor,
+                  textColor: colorScheme.grayTextColor,
+                ),
+                _buildPerformanceTile(
+                  context,
+                  'Receive',
+                  statsComputer.countReceiveErrors().toString(),
+                  'Receive errors',
+                  'Total receive errors committed',
+                  color: colorScheme.grayColor,
+                  textColor: colorScheme.grayTextColor,
+                ),
+                _buildPerformanceTile(
+                  context,
+                  'Dig',
+                  statsComputer.countDigErrors().toString(),
+                  'Dig errors',
+                  'Total dig errors committed',
+                  color: colorScheme.grayColor,
+                  textColor: colorScheme.grayTextColor,
+                ),
+                _buildPerformanceTile(
+                  context,
+                  'Block',
+                  statsComputer.countBlockErrors().toString(),
+                  'Block errors',
+                  'Total block errors committed',
+                  color: colorScheme.grayColor,
+                  textColor: colorScheme.grayTextColor,
+                ),
+                _buildPerformanceTile(
+                  context,
+                  'Cover',
+                  statsComputer.countCoverErrors().toString(),
+                  'Cover errors',
+                  'Total cover errors committed',
+                  color: colorScheme.grayColor,
+                  textColor: colorScheme.grayTextColor,
+                ),
+                _buildPerformanceTile(
+                  context,
+                  'Faults',
+                  statsComputer.countRuleViolations().toString(),
+                  'Rule violations',
+                  'Total faults/violations committed',
+                  color: colorScheme.grayColor,
+                  textColor: colorScheme.grayTextColor,
+                ),
+                _buildPerformanceTile(
+                  context,
+                  'Free Ball',
+                  statsComputer.countFreeBallErrors().toString(),
+                  'Free ball errors',
+                  'Total free ball errors committed',
+                  color: colorScheme.grayColor,
+                  textColor: colorScheme.grayTextColor,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPerformanceStats(BuildContext context, WidgetRef ref, SetStatsComputer statsComputer) {
+    final colorScheme = ref.read(colorSchemeProvider.notifier).currentScheme;
+    
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -579,6 +777,8 @@ class LiveSetScreen extends ConsumerWidget {
                   statsComputer.getSideoutPercentage().toStringAsFixed(0),
                   '${statsComputer.getSideoutCounts()['won']}/${statsComputer.getSideoutCounts()['total']}',
                   'Sideout percentage',
+                  color: colorScheme.performanceColor,
+                  textColor: colorScheme.performanceTextColor,
                 ),
                 _buildPerformanceTile(
                   context,
@@ -586,20 +786,62 @@ class LiveSetScreen extends ConsumerWidget {
                   statsComputer.getPointScoringPercentage().toStringAsFixed(0),
                   '${statsComputer.getPointScoringCounts()['won']}/${statsComputer.getPointScoringCounts()['total']}',
                   'Point-scoring percentage',
+                  color: colorScheme.performanceColor,
+                  textColor: colorScheme.performanceTextColor,
                 ),
                 _buildPerformanceTile(
                   context,
-                  'Ace Ratio',
+                  'Ace : Serve Error',
                   statsComputer.getAceToServiceErrorRatio(),
                   '${statsComputer.countAces()}:${statsComputer.countServeErrors()}',
                   'Ace to service error ratio',
+                  color: colorScheme.performanceColor,
+                  textColor: colorScheme.performanceTextColor,
                 ),
                 _buildPerformanceTile(
                   context,
-                  'Rec Ratio',
+                  'Ace : Rec Error',
                   statsComputer.getAceToReceiveErrorRatio(),
                   '${statsComputer.countAces()}:${statsComputer.countReceiveErrors()}',
                   'Ace to receive error ratio',
+                  color: colorScheme.performanceColor,
+                  textColor: colorScheme.performanceTextColor,
+                ),
+                _buildPerformanceTile(
+                  context,
+                  'Kill : Attack Error',
+                  statsComputer.getKillToAttackErrorRatio(),
+                  '${statsComputer.countKills()}:${statsComputer.countAttackErrors()}',
+                  'Kill to attack error ratio',
+                  color: colorScheme.performanceColor,
+                  textColor: colorScheme.performanceTextColor,
+                ),
+                _buildPerformanceTile(
+                  context,
+                  '3+ Runs - Us',
+                  statsComputer.countThreePlusPointRunsUs().toString(),
+                  'Scoring runs',
+                  'Number of 3+ point runs for us',
+                  color: colorScheme.performanceColor,
+                  textColor: colorScheme.performanceTextColor,
+                ),
+                _buildPerformanceTile(
+                  context,
+                  '3+ Runs - Them',
+                  statsComputer.countThreePlusPointRunsThem().toString(),
+                  'Their runs',
+                  'Number of 3+ point runs for them',
+                  color: colorScheme.performanceColor,
+                  textColor: colorScheme.performanceTextColor,
+                ),
+                _buildPerformanceTile(
+                  context,
+                  'Points Ratio',
+                  statsComputer.getPointsRatio(),
+                  '${statsComputer.getTotalOurPoints()}:${statsComputer.getTotalOpponentPoints()}',
+                  'Our points to their points ratio',
+                  color: colorScheme.performanceColor,
+                  textColor: colorScheme.performanceTextColor,
                 ),
               ],
             ),
@@ -750,7 +992,7 @@ class LiveSetScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 12),
             SizedBox(
-              height: 200,
+              height: 400,
               child: rallies.isEmpty
                   ? const Center(child: Text('No rallies yet'))
                   : MomentumChart(rallies: rallies),
@@ -852,10 +1094,15 @@ class LiveSetScreen extends ConsumerWidget {
     String label,
     String value,
     String subtitle,
-    String infoText,
-  ) {
+    String infoText, {
+    Color? color,
+    Color? textColor,
+  }) {
+    final tileColor = color ?? Colors.blue.shade100;
+    final tileTextColor = textColor ?? Colors.black;
+    
     return Card(
-      color: Colors.blue.shade100,
+      color: tileColor,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
         child: Column(
@@ -863,28 +1110,105 @@ class LiveSetScreen extends ConsumerWidget {
           children: [
             Text(
               label,
-              style: const TextStyle(
-                fontSize: 11,
+              style: TextStyle(
+                fontSize: 10,
                 fontWeight: FontWeight.bold,
+                color: tileTextColor,
               ),
             ),
             Text(
               value,
-              style: const TextStyle(
-                fontSize: 36,
+              style: TextStyle(
+                fontSize: 48,
                 fontWeight: FontWeight.w900,
                 height: 1.0,
+                color: tileTextColor,
               ),
             ),
             Text(
               subtitle,
-              style: const TextStyle(
-                fontSize: 10,
+              style: TextStyle(
+                fontSize: 9,
+                color: tileTextColor,
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  void _showColorSchemeDialog(BuildContext context, WidgetRef ref) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Choose Color Scheme'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final scheme in ColorSchemeType.values)
+              ListTile(
+                title: Text(_getColorSchemeName(scheme)),
+                trailing: _buildSchemePreview(ref, scheme),
+                onTap: () {
+                  ref.read(colorSchemeProvider.notifier).setColorScheme(scheme);
+                  Navigator.of(context).pop();
+                },
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _getColorSchemeName(ColorSchemeType type) {
+    switch (type) {
+      case ColorSchemeType.boldStadium:
+        return 'Bold Stadium';
+      case ColorSchemeType.neonCourt:
+        return 'Neon Court';
+      case ColorSchemeType.classicSports:
+        return 'Classic Sports';
+      case ColorSchemeType.volleyballArena:
+        return 'Volleyball Arena';
+    }
+  }
+
+  Widget _buildSchemePreview(WidgetRef ref, ColorSchemeType type) {
+    final tempNotifier = ColorSchemeNotifier();
+    tempNotifier.setColorScheme(type);
+    final scheme = tempNotifier.currentScheme;
+    
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 20,
+          height: 20,
+          decoration: BoxDecoration(
+            color: scheme.greenColor,
+            border: Border.all(color: Colors.black),
+          ),
+        ),
+        const SizedBox(width: 4),
+        Container(
+          width: 20,
+          height: 20,
+          decoration: BoxDecoration(
+            color: scheme.redColor,
+            border: Border.all(color: Colors.black),
+          ),
+        ),
+        const SizedBox(width: 4),
+        Container(
+          width: 20,
+          height: 20,
+          decoration: BoxDecoration(
+            color: scheme.performanceColor,
+            border: Border.all(color: Colors.black),
+          ),
+        ),
+      ],
     );
   }
 }
