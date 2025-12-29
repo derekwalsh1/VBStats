@@ -8,6 +8,7 @@ import 'package:vbstats/presentation/providers/color_scheme_provider.dart';
 import 'package:vbstats/core/utils/stats_calculator.dart';
 import 'package:vbstats/core/utils/set_logic.dart';
 import 'package:vbstats/presentation/widgets/momentum_chart.dart';
+import 'package:vbstats/presentation/widgets/sparkline.dart';
 
 class LiveSetScreen extends ConsumerWidget {
   final Match match;
@@ -779,6 +780,7 @@ class LiveSetScreen extends ConsumerWidget {
                   'Sideout percentage',
                   color: colorScheme.performanceColor,
                   textColor: colorScheme.performanceTextColor,
+                  sparklineData: statsComputer.getSideoutPercentageHistory(),
                 ),
                 _buildPerformanceTile(
                   context,
@@ -788,6 +790,7 @@ class LiveSetScreen extends ConsumerWidget {
                   'Point-scoring percentage',
                   color: colorScheme.performanceColor,
                   textColor: colorScheme.performanceTextColor,
+                  sparklineData: statsComputer.getPointScoringPercentageHistory(),
                 ),
                 _buildPerformanceTile(
                   context,
@@ -797,6 +800,7 @@ class LiveSetScreen extends ConsumerWidget {
                   'Ace to service error ratio',
                   color: colorScheme.performanceColor,
                   textColor: colorScheme.performanceTextColor,
+                  sparklineData: statsComputer.getAceToServiceErrorRatioHistory(),
                 ),
                 _buildPerformanceTile(
                   context,
@@ -806,6 +810,7 @@ class LiveSetScreen extends ConsumerWidget {
                   'Ace to receive error ratio',
                   color: colorScheme.performanceColor,
                   textColor: colorScheme.performanceTextColor,
+                  sparklineData: statsComputer.getAceToReceiveErrorRatioHistory(),
                 ),
                 _buildPerformanceTile(
                   context,
@@ -815,6 +820,7 @@ class LiveSetScreen extends ConsumerWidget {
                   'Kill to attack error ratio',
                   color: colorScheme.performanceColor,
                   textColor: colorScheme.performanceTextColor,
+                  sparklineData: statsComputer.getKillToAttackErrorRatioHistory(),
                 ),
                 _buildPerformanceTile(
                   context,
@@ -824,6 +830,7 @@ class LiveSetScreen extends ConsumerWidget {
                   'Number of 3+ point runs for us',
                   color: colorScheme.performanceColor,
                   textColor: colorScheme.performanceTextColor,
+                  sparklineData: statsComputer.getThreePlusRunsUsHistory(),
                 ),
                 _buildPerformanceTile(
                   context,
@@ -833,6 +840,7 @@ class LiveSetScreen extends ConsumerWidget {
                   'Number of 3+ point runs for them',
                   color: colorScheme.performanceColor,
                   textColor: colorScheme.performanceTextColor,
+                  sparklineData: statsComputer.getThreePlusRunsThemHistory(),
                 ),
                 _buildPerformanceTile(
                   context,
@@ -842,6 +850,7 @@ class LiveSetScreen extends ConsumerWidget {
                   'Our points to their points ratio',
                   color: colorScheme.performanceColor,
                   textColor: colorScheme.performanceTextColor,
+                  sparklineData: statsComputer.getPointsRatioHistory(),
                 ),
               ],
             ),
@@ -1097,6 +1106,7 @@ class LiveSetScreen extends ConsumerWidget {
     String infoText, {
     Color? color,
     Color? textColor,
+    List<double>? sparklineData,
   }) {
     final tileColor = color ?? Colors.blue.shade100;
     final tileTextColor = textColor ?? Colors.black;
@@ -1125,6 +1135,16 @@ class LiveSetScreen extends ConsumerWidget {
                 color: tileTextColor,
               ),
             ),
+            if (sparklineData != null && sparklineData.length > 1)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                child: Sparkline(
+                  data: sparklineData,
+                  color: tileTextColor.withOpacity(0.6),
+                  height: 20,
+                  strokeWidth: 1.5,
+                ),
+              ),
             Text(
               subtitle,
               style: TextStyle(

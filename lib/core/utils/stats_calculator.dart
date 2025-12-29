@@ -205,6 +205,190 @@ class SetStatsComputer {
     return (ourPoints / theirPoints).toStringAsFixed(2);
   }
 
+  // ===== Historical/Sparkline Data Methods =====
+
+  /// Get sideout percentage history (after each rally)
+  List<double> getSideoutPercentageHistory() {
+    final history = <double>[];
+    int weWonInReceive = 0;
+    int totalInReceive = 0;
+
+    for (var rally in rallies) {
+      if (!rally.weWereServing) {
+        totalInReceive++;
+        if (rally.weWon) {
+          weWonInReceive++;
+        }
+      }
+      
+      if (totalInReceive == 0) {
+        history.add(0);
+      } else {
+        history.add((weWonInReceive / totalInReceive) * 100);
+      }
+    }
+    
+    return history;
+  }
+
+  /// Get point-scoring percentage history (after each rally)
+  List<double> getPointScoringPercentageHistory() {
+    final history = <double>[];
+    int weWonWhileServing = 0;
+    int totalWhileServing = 0;
+
+    for (var rally in rallies) {
+      if (rally.weWereServing) {
+        totalWhileServing++;
+        if (rally.weWon) {
+          weWonWhileServing++;
+        }
+      }
+      
+      if (totalWhileServing == 0) {
+        history.add(0);
+      } else {
+        history.add((weWonWhileServing / totalWhileServing) * 100);
+      }
+    }
+    
+    return history;
+  }
+
+  /// Get ace:serve error ratio history
+  List<double> getAceToServiceErrorRatioHistory() {
+    final history = <double>[];
+    int aces = 0;
+    int serveErrors = 0;
+
+    for (var rally in rallies) {
+      if (rally.outcome == RallyOutcome.ace && rally.weWon) {
+        aces++;
+      } else if (rally.outcome == RallyOutcome.serveError && !rally.weWon) {
+        serveErrors++;
+      }
+      
+      if (serveErrors == 0) {
+        history.add(aces.toDouble());
+      } else {
+        history.add(aces / serveErrors);
+      }
+    }
+    
+    return history;
+  }
+
+  /// Get ace:receive error ratio history
+  List<double> getAceToReceiveErrorRatioHistory() {
+    final history = <double>[];
+    int aces = 0;
+    int receiveErrors = 0;
+
+    for (var rally in rallies) {
+      if (rally.outcome == RallyOutcome.ace && rally.weWon) {
+        aces++;
+      } else if (rally.outcome == RallyOutcome.receiveError && !rally.weWon) {
+        receiveErrors++;
+      }
+      
+      if (receiveErrors == 0) {
+        history.add(aces.toDouble());
+      } else {
+        history.add(aces / receiveErrors);
+      }
+    }
+    
+    return history;
+  }
+
+  /// Get kill:attack error ratio history
+  List<double> getKillToAttackErrorRatioHistory() {
+    final history = <double>[];
+    int kills = 0;
+    int attackErrors = 0;
+
+    for (var rally in rallies) {
+      if (rally.outcome == RallyOutcome.kill && rally.weWon) {
+        kills++;
+      } else if (rally.outcome == RallyOutcome.attackError && !rally.weWon) {
+        attackErrors++;
+      }
+      
+      if (attackErrors == 0) {
+        history.add(kills.toDouble());
+      } else {
+        history.add(kills / attackErrors);
+      }
+    }
+    
+    return history;
+  }
+
+  /// Get 3+ runs for us history (cumulative)
+  List<double> getThreePlusRunsUsHistory() {
+    final history = <double>[];
+    int runs = 0;
+    int currentRun = 0;
+
+    for (var rally in rallies) {
+      if (rally.weWon) {
+        currentRun++;
+      } else {
+        if (currentRun >= 3) {
+          runs++;
+        }
+        currentRun = 0;
+      }
+      history.add(runs.toDouble());
+    }
+    
+    return history;
+  }
+
+  /// Get 3+ runs for them history (cumulative)
+  List<double> getThreePlusRunsThemHistory() {
+    final history = <double>[];
+    int runs = 0;
+    int currentRun = 0;
+
+    for (var rally in rallies) {
+      if (!rally.weWon) {
+        currentRun++;
+      } else {
+        if (currentRun >= 3) {
+          runs++;
+        }
+        currentRun = 0;
+      }
+      history.add(runs.toDouble());
+    }
+    
+    return history;
+  }
+
+  /// Get points ratio history
+  List<double> getPointsRatioHistory() {
+    final history = <double>[];
+    int ourPoints = 0;
+    int theirPoints = 0;
+
+    for (var rally in rallies) {
+      if (rally.weWon) {
+        ourPoints++;
+      } else {
+        theirPoints++;
+      }
+      
+      if (theirPoints == 0) {
+        history.add(ourPoints.toDouble());
+      } else {
+        history.add(ourPoints / theirPoints);
+      }
+    }
+    
+    return history;
+  }
+
   /// Returns all stats as a map
   Map<String, dynamic> getStatsMap() => {
         'aces': countAces(),
