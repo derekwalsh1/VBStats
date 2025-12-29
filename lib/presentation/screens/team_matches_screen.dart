@@ -86,29 +86,83 @@ class TeamMatchesScreen extends ConsumerWidget {
                   itemCount: matches.length,
                   itemBuilder: (context, index) {
                     final match = matches[index];
-                    return Card(
-                      margin: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      child: ListTile(
-                        title: Text('vs ${match.opponentName}'),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(DateFormat('MMM d, yyyy').format(match.date)),
-                            if (match.eventName != null)
-                              Text(match.eventName!),
-                          ],
+                    return Dismissible(
+                      key: Key(match.id),
+                      direction: DismissDirection.endToStart,
+                      background: Container(
+                        alignment: Alignment.centerRight,
+                        padding: const EdgeInsets.only(right: 16),
+                        color: Colors.red,
+                        child: const Icon(
+                          Icons.delete,
+                          color: Colors.white,
+                          size: 32,
                         ),
-                        trailing: const Icon(Icons.chevron_right),
-                        onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => MatchDetailScreen(match: match),
+                      ),
+                      confirmDismiss: (direction) async {
+                        return await showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('Delete Match'),
+                            content: Text(
+                              'Are you sure you want to delete the match against ${match.opponentName}? This will also delete all sets and rallies.',
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.of(context).pop(false),
+                                child: const Text('Cancel'),
+                              ),
+                              TextButton(
+                                onPressed: () => Navigator.of(context).pop(true),
+                                style: TextButton.styleFrom(
+                                  foregroundColor: Colors.red,
+                                ),
+                                child: const Text('Delete'),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                      onDismissed: (direction) async {
+                        final repo = await ref.read(matchRepositoryProvider.future);
+                        await repo.deleteMatch(match.id);
+                        ref.invalidate(teamMatchesProvider(team.id));
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Match against ${match.opponentName} deleted'),
+                              action: SnackBarAction(
+                                label: 'Dismiss',
+                                onPressed: () {},
+                              ),
                             ),
                           );
-                        },
+                        }
+                      },
+                      child: Card(
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        child: ListTile(
+                          title: Text('vs ${match.opponentName}'),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(DateFormat('MMM d, yyyy').format(match.date)),
+                              if (match.eventName != null)
+                                Text(match.eventName!),
+                            ],
+                          ),
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => MatchDetailScreen(match: match),
+                              ),
+                            );
+                          },
+                        ),
                       ),
                     );
                   },
