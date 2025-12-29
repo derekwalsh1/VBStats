@@ -116,12 +116,37 @@ class MomentumChartPainter extends CustomPainter {
       );
       textPainter.layout();
 
+      // Create rotation/phase label (e.g., S1, R6)
+      final phaseLabel = '${point.weWereServing ? 'S' : 'R'}${point.rotation}';
+      final phasePainter = TextPainter(
+        text: TextSpan(
+          text: phaseLabel,
+          style: TextStyle(
+            color: Colors.grey.shade600,
+            fontSize: 8,
+          ),
+        ),
+        textDirection: TextDirection.ltr,
+      );
+      phasePainter.layout();
+
       // Position text: below the line for our points, above for opponent points
       final textX = x + (stepWidth - textPainter.width) / 2;
-      final textY = point.weScored 
-          ? y + 2  // Below the line for our points
-          : y - textPainter.height - 2;  // Above the line for opponent points
-      textPainter.paint(canvas, Offset(textX, textY));
+      final phaseX = x + (stepWidth - phasePainter.width) / 2;
+      
+      if (point.weScored) {
+        // Below the line for our points: outcome then phase
+        final textY = y + 2;
+        final phaseY = textY + textPainter.height + 1;
+        textPainter.paint(canvas, Offset(textX, textY));
+        phasePainter.paint(canvas, Offset(phaseX, phaseY));
+      } else {
+        // Above the line for opponent points: phase then outcome
+        final phaseY = y - textPainter.height - phasePainter.height - 3;
+        final textY = y - textPainter.height - 2;
+        phasePainter.paint(canvas, Offset(phaseX, phaseY));
+        textPainter.paint(canvas, Offset(textX, textY));
+      }
     }
   }
 

@@ -9,6 +9,7 @@ import 'package:vbstats/core/utils/stats_calculator.dart';
 import 'package:vbstats/core/utils/set_logic.dart';
 import 'package:vbstats/presentation/widgets/momentum_chart.dart';
 import 'package:vbstats/presentation/widgets/sparkline.dart';
+import 'package:vbstats/presentation/widgets/dot_sparkline.dart';
 
 class LiveSetScreen extends ConsumerWidget {
   final Match match;
@@ -517,7 +518,9 @@ class LiveSetScreen extends ConsumerWidget {
   }
 
   Widget _buildScoringBreakdownUs(BuildContext context, WidgetRef ref, SetStatsComputer statsComputer) {
+    ref.watch(colorSchemeProvider); // Watch for changes
     final colorScheme = ref.read(colorSchemeProvider.notifier).currentScheme;
+    final totalRallies = statsComputer.rallies.length;
     
     return Card(
       child: Padding(
@@ -538,41 +541,49 @@ class LiveSetScreen extends ConsumerWidget {
               crossAxisSpacing: 6,
               childAspectRatio: 1.5,
               children: [
-                _buildPerformanceTile(
+                _buildErrorTile(
                   context,
                   'Aces',
                   statsComputer.countAces().toString(),
                   'Serve aces',
                   'Points scored from aces',
-                  color: statsComputer.countAces() >= 2 ? colorScheme.greenColor : colorScheme.grayColor,
-                  textColor: statsComputer.countAces() >= 2 ? colorScheme.greenTextColor : colorScheme.grayTextColor,
+                  statsComputer.countAces() >= 2 ? colorScheme.greenColor : colorScheme.grayColor,
+                  statsComputer.countAces() >= 2 ? colorScheme.greenTextColor : colorScheme.grayTextColor,
+                  statsComputer.getAceIndices(),
+                  totalRallies,
                 ),
-                _buildPerformanceTile(
+                _buildErrorTile(
                   context,
                   'Kills',
                   statsComputer.countKills().toString(),
                   'Attack kills',
                   'Points scored from kills',
-                  color: statsComputer.countKills() >= 14 ? colorScheme.greenColor : colorScheme.grayColor,
-                  textColor: statsComputer.countKills() >= 14 ? colorScheme.greenTextColor : colorScheme.grayTextColor,
+                  statsComputer.countKills() >= 14 ? colorScheme.greenColor : colorScheme.grayColor,
+                  statsComputer.countKills() >= 14 ? colorScheme.greenTextColor : colorScheme.grayTextColor,
+                  statsComputer.getKillIndices(),
+                  totalRallies,
                 ),
-                _buildPerformanceTile(
+                _buildErrorTile(
                   context,
                   'Blocks',
                   statsComputer.countBlocks().toString(),
                   'Block points',
                   'Points scored from blocks',
-                  color: statsComputer.countBlocks() >= 1 ? colorScheme.greenColor : colorScheme.grayColor,
-                  textColor: statsComputer.countBlocks() >= 1 ? colorScheme.greenTextColor : colorScheme.grayTextColor,
+                  statsComputer.countBlocks() >= 1 ? colorScheme.greenColor : colorScheme.grayColor,
+                  statsComputer.countBlocks() >= 1 ? colorScheme.greenTextColor : colorScheme.grayTextColor,
+                  statsComputer.getBlockIndices(),
+                  totalRallies,
                 ),
-                _buildPerformanceTile(
+                _buildErrorTile(
                   context,
                   'Opp Errors',
                   statsComputer.countOpponentErrors().toString(),
                   'Opponent errors',
                   'Points from opponent errors',
-                  color: statsComputer.countOpponentErrors() >= 8 ? colorScheme.greenColor : colorScheme.grayColor,
-                  textColor: statsComputer.countOpponentErrors() >= 8 ? colorScheme.greenTextColor : colorScheme.grayTextColor,
+                  statsComputer.countOpponentErrors() >= 8 ? colorScheme.greenColor : colorScheme.grayColor,
+                  statsComputer.countOpponentErrors() >= 8 ? colorScheme.greenTextColor : colorScheme.grayTextColor,
+                  statsComputer.getOpponentErrorIndices(),
+                  totalRallies,
                 ),
               ],
             ),
@@ -583,7 +594,9 @@ class LiveSetScreen extends ConsumerWidget {
   }
 
   Widget _buildScoringBreakdownThem(BuildContext context, WidgetRef ref, SetStatsComputer statsComputer) {
+    ref.watch(colorSchemeProvider); // Watch for changes
     final colorScheme = ref.read(colorSchemeProvider.notifier).currentScheme;
+    final totalRallies = statsComputer.rallies.length;
     
     return Card(
       child: Padding(
@@ -604,41 +617,49 @@ class LiveSetScreen extends ConsumerWidget {
               crossAxisSpacing: 6,
               childAspectRatio: 1.5,
               children: [
-                _buildPerformanceTile(
+                _buildErrorTile(
                   context,
                   'Aces',
                   statsComputer.countReceiveErrors().toString(),
                   'Our receive errors',
                   'Points from our receive errors',
-                  color: statsComputer.countReceiveErrors() >= 2 ? colorScheme.redColor : colorScheme.grayColor,
-                  textColor: statsComputer.countReceiveErrors() >= 2 ? colorScheme.redTextColor : colorScheme.grayTextColor,
+                  statsComputer.countReceiveErrors() >= 2 ? colorScheme.redColor : colorScheme.grayColor,
+                  statsComputer.countReceiveErrors() >= 2 ? colorScheme.redTextColor : colorScheme.grayTextColor,
+                  statsComputer.getOpponentAceIndices(),
+                  totalRallies,
                 ),
-                _buildPerformanceTile(
+                _buildErrorTile(
                   context,
                   'Kills',
                   statsComputer.countDigErrors().toString(),
                   'Our dig errors',
                   'Points from our dig errors',
-                  color: statsComputer.countDigErrors() >= 14 ? colorScheme.redColor : colorScheme.grayColor,
-                  textColor: statsComputer.countDigErrors() >= 14 ? colorScheme.redTextColor : colorScheme.grayTextColor,
+                  statsComputer.countDigErrors() >= 14 ? colorScheme.redColor : colorScheme.grayColor,
+                  statsComputer.countDigErrors() >= 14 ? colorScheme.redTextColor : colorScheme.grayTextColor,
+                  statsComputer.getOpponentKillIndices(),
+                  totalRallies,
                 ),
-                _buildPerformanceTile(
+                _buildErrorTile(
                   context,
                   'Blocks',
                   statsComputer.countCoverErrors().toString(),
                   'Our cover errors',
                   'Points from our cover errors',
-                  color: statsComputer.countCoverErrors() >= 1 ? colorScheme.redColor : colorScheme.grayColor,
-                  textColor: statsComputer.countCoverErrors() >= 1 ? colorScheme.redTextColor : colorScheme.grayTextColor,
+                  statsComputer.countCoverErrors() >= 1 ? colorScheme.redColor : colorScheme.grayColor,
+                  statsComputer.countCoverErrors() >= 1 ? colorScheme.redTextColor : colorScheme.grayTextColor,
+                  statsComputer.getOpponentBlockIndices(),
+                  totalRallies,
                 ),
-                _buildPerformanceTile(
+                _buildErrorTile(
                   context,
                   'Our Errors',
                   statsComputer.countOurOtherErrors().toString(),
                   'Other errors',
                   'Points from our other errors',
-                  color: statsComputer.countOurOtherErrors() >= 8 ? colorScheme.redColor : colorScheme.grayColor,
-                  textColor: statsComputer.countOurOtherErrors() >= 8 ? colorScheme.redTextColor : colorScheme.grayTextColor,
+                  statsComputer.countOurOtherErrors() >= 8 ? colorScheme.redColor : colorScheme.grayColor,
+                  statsComputer.countOurOtherErrors() >= 8 ? colorScheme.redTextColor : colorScheme.grayTextColor,
+                  statsComputer.getOurOtherErrorIndices(),
+                  totalRallies,
                 ),
               ],
             ),
@@ -649,7 +670,9 @@ class LiveSetScreen extends ConsumerWidget {
   }
 
   Widget _buildErrorBreakdownUs(BuildContext context, WidgetRef ref, SetStatsComputer statsComputer) {
+    ref.watch(colorSchemeProvider); // Watch for changes
     final colorScheme = ref.read(colorSchemeProvider.notifier).currentScheme;
+    final totalRallies = statsComputer.rallies.length;
     
     return Card(
       child: Padding(
@@ -670,77 +693,93 @@ class LiveSetScreen extends ConsumerWidget {
               crossAxisSpacing: 6,
               childAspectRatio: 1.5,
               children: [
-                _buildPerformanceTile(
+                _buildErrorTile(
                   context,
                   'Attack',
                   statsComputer.countAttackErrors().toString(),
                   'Attack errors',
                   'Total attack errors committed',
-                  color: colorScheme.grayColor,
-                  textColor: colorScheme.grayTextColor,
+                  colorScheme.grayColor,
+                  colorScheme.grayTextColor,
+                  statsComputer.getAttackErrorIndices(),
+                  totalRallies,
                 ),
-                _buildPerformanceTile(
+                _buildErrorTile(
                   context,
                   'Service',
                   statsComputer.countServeErrors().toString(),
                   'Service errors',
                   'Total service errors committed',
-                  color: colorScheme.grayColor,
-                  textColor: colorScheme.grayTextColor,
+                  colorScheme.grayColor,
+                  colorScheme.grayTextColor,
+                  statsComputer.getServeErrorIndices(),
+                  totalRallies,
                 ),
-                _buildPerformanceTile(
+                _buildErrorTile(
                   context,
                   'Receive',
                   statsComputer.countReceiveErrors().toString(),
                   'Receive errors',
                   'Total receive errors committed',
-                  color: colorScheme.grayColor,
-                  textColor: colorScheme.grayTextColor,
+                  colorScheme.grayColor,
+                  colorScheme.grayTextColor,
+                  statsComputer.getReceiveErrorIndices(),
+                  totalRallies,
                 ),
-                _buildPerformanceTile(
+                _buildErrorTile(
                   context,
                   'Dig',
                   statsComputer.countDigErrors().toString(),
                   'Dig errors',
                   'Total dig errors committed',
-                  color: colorScheme.grayColor,
-                  textColor: colorScheme.grayTextColor,
+                  colorScheme.grayColor,
+                  colorScheme.grayTextColor,
+                  statsComputer.getDigErrorIndices(),
+                  totalRallies,
                 ),
-                _buildPerformanceTile(
+                _buildErrorTile(
                   context,
                   'Block',
                   statsComputer.countBlockErrors().toString(),
                   'Block errors',
                   'Total block errors committed',
-                  color: colorScheme.grayColor,
-                  textColor: colorScheme.grayTextColor,
+                  colorScheme.grayColor,
+                  colorScheme.grayTextColor,
+                  statsComputer.getBlockErrorIndices(),
+                  totalRallies,
                 ),
-                _buildPerformanceTile(
+                _buildErrorTile(
                   context,
                   'Cover',
                   statsComputer.countCoverErrors().toString(),
                   'Cover errors',
                   'Total cover errors committed',
-                  color: colorScheme.grayColor,
-                  textColor: colorScheme.grayTextColor,
+                  colorScheme.grayColor,
+                  colorScheme.grayTextColor,
+                  statsComputer.getCoverErrorIndices(),
+                  totalRallies,
                 ),
-                _buildPerformanceTile(
+                _buildErrorTile(
                   context,
                   'Faults',
                   statsComputer.countRuleViolations().toString(),
                   'Rule violations',
                   'Total faults/violations committed',
-                  color: colorScheme.grayColor,
-                  textColor: colorScheme.grayTextColor,
+                  colorScheme.grayColor,
+                  colorScheme.grayTextColor,
+                  statsComputer.getRuleViolationIndices(),
+                  totalRallies,
                 ),
-                _buildPerformanceTile(
+                _buildErrorTile(
                   context,
                   'Free Ball',
                   statsComputer.countFreeBallErrors().toString(),
                   'Free ball errors',
                   'Total free ball errors committed',
-                  color: colorScheme.grayColor,
-                  textColor: colorScheme.grayTextColor,
+                  colorScheme.grayColor,
+                  colorScheme.grayTextColor,
+                  statsComputer.getFreeBallErrorIndices(),
+                  totalRallies,
                 ),
               ],
             ),
@@ -751,6 +790,7 @@ class LiveSetScreen extends ConsumerWidget {
   }
 
   Widget _buildPerformanceStats(BuildContext context, WidgetRef ref, SetStatsComputer statsComputer) {
+    ref.watch(colorSchemeProvider); // Watch for changes
     final colorScheme = ref.read(colorSchemeProvider.notifier).currentScheme;
     
     return Card(
@@ -1150,6 +1190,65 @@ class LiveSetScreen extends ConsumerWidget {
               style: TextStyle(
                 fontSize: 9,
                 color: tileTextColor,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildErrorTile(
+    BuildContext context,
+    String label,
+    String value,
+    String subtitle,
+    String infoText,
+    Color color,
+    Color textColor,
+    List<int> errorIndices,
+    int totalRallies,
+  ) {
+    return Card(
+      color: color,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+                color: textColor,
+              ),
+            ),
+            Text(
+              value,
+              style: TextStyle(
+                fontSize: 48,
+                fontWeight: FontWeight.w900,
+                height: 1.0,
+                color: textColor,
+              ),
+            ),
+            if (totalRallies > 0)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                child: DotSparkline(
+                  occurrenceIndices: errorIndices,
+                  totalRallies: totalRallies,
+                  color: textColor.withOpacity(0.6),
+                  height: 20,
+                  dotSize: 3.0,
+                ),
+              ),
+            Text(
+              subtitle,
+              style: TextStyle(
+                fontSize: 9,
+                color: textColor,
               ),
             ),
           ],

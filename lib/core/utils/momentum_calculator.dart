@@ -6,12 +6,16 @@ class MomentumPoint {
   final int cumulativeScoreDiff; // positive = we're ahead, negative = opponent ahead
   final String outcome; // short code or label
   final bool weScored;
+  final int rotation; // 1-6
+  final bool weWereServing;
 
   MomentumPoint({
     required this.rallyIndex,
     required this.cumulativeScoreDiff,
     required this.outcome,
     required this.weScored,
+    required this.rotation,
+    required this.weWereServing,
   });
 }
 
@@ -53,6 +57,8 @@ class MomentumComputer {
         cumulativeScoreDiff: cumulativeScoreDiff,
         outcome: rally.outcome.shortCode,
         weScored: rally.weWon,
+        rotation: rally.rotationAtStart,
+        weWereServing: rally.weWereServing,
       ));
     }
 
