@@ -54,7 +54,16 @@ class TeamsListScreen extends ConsumerWidget {
                     child: Text(team.name[0].toUpperCase()),
                   ),
                   title: Text(team.name),
-                  trailing: const Icon(Icons.chevron_right),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.edit),
+                        onPressed: () => _showEditTeamDialog(context, ref, team),
+                      ),
+                      const Icon(Icons.chevron_right),
+                    ],
+                  ),
                   onTap: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
@@ -71,6 +80,50 @@ class TeamsListScreen extends ConsumerWidget {
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddTeamDialog(context, ref),
         child: const Icon(Icons.add),
+      ),
+    );
+  }
+
+  void _showEditTeamDialog(BuildContext context, WidgetRef ref, Team team) {
+    final controller = TextEditingController(text: team.name);
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Edit Team'),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(
+            labelText: 'Team Name',
+            hintText: 'Enter team name',
+          ),
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              if (controller.text.trim().isEmpty) return;
+              
+              final updatedTeam = Team(
+                id: team.id,
+                name: controller.text.trim(),
+                createdAt: team.createdAt,
+              );
+              
+              final repo = await ref.read(teamRepositoryProvider.future);
+              await repo.updateTeam(updatedTeam);
+              ref.invalidate(teamsProvider);
+              
+              if (context.mounted) {
+                Navigator.of(context).pop();
+              }
+            },
+            child: const Text('Save'),
+          ),
+        ],
       ),
     );
   }

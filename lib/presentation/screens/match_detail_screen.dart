@@ -7,19 +7,38 @@ import 'package:vbstats/presentation/providers/database_providers.dart';
 import 'package:vbstats/presentation/screens/set_start_screen.dart';
 import 'package:vbstats/presentation/screens/live_set_screen.dart';
 
-class MatchDetailScreen extends ConsumerWidget {
+class MatchDetailScreen extends ConsumerStatefulWidget {
   final Match match;
 
   const MatchDetailScreen({required this.match, Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final setsAsync = ref.watch(matchSetsProvider(match.id));
+  ConsumerState<MatchDetailScreen> createState() => _MatchDetailScreenState();
+}
+
+class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
+  late Match currentMatch;
+
+  @override
+  void initState() {
+    super.initState();
+    currentMatch = widget.match;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final setsAsync = ref.watch(matchSetsProvider(currentMatch.id));
 
     return Scaffold(
       appBar: AppBar(
         title: Text(match.displayName),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.edit),
+            onPressed: () => _showEditMatchDialog(context, ref),
+          ),
+        ],
       ),
       body: setsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -68,7 +87,7 @@ class MatchDetailScreen extends ConsumerWidget {
                               onPressed: () {
                                 Navigator.of(context).push(
                                   MaterialPageRoute(
-                                    builder: (context) => SetStartScreen(match: match),
+                                    builder: (context) => SetStartScreen(match: currentMatch),
                                   ),
                                 );
                               },
@@ -123,7 +142,7 @@ class MatchDetailScreen extends ConsumerWidget {
                             onDismissed: (direction) async {
                               final repo = await ref.read(matchRepositoryProvider.future);
                               await repo.deleteSet(set.id);
-                              ref.invalidate(matchSetsProvider(match.id));
+                              ref.invalidate(matchSetsProvider(currentMatch.id));
                               if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
@@ -152,7 +171,7 @@ class MatchDetailScreen extends ConsumerWidget {
                                   Navigator.of(context).push(
                                     MaterialPageRoute(
                                       builder: (context) => LiveSetScreen(
-                                        match: match,
+                                        match: currentMatch,
                                         setId: set.id,
                                       ),
                                     ),
@@ -172,7 +191,7 @@ class MatchDetailScreen extends ConsumerWidget {
                     onPressed: () {
                       Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (context) => SetStartScreen(match: match),
+                          builder: (context) => SetStartScreen(match: currentMatch),
                         ),
                       );
                     },
@@ -183,6 +202,94 @@ class MatchDetailScreen extends ConsumerWidget {
             ],
           );
         },
+      ),
+    );
+  }
+
+  void _showEditMatchDialog(BuildContext context, WidgetRef ref) {
+    final opponentController = TextEditingController(text: currentMatch.opponentName);
+    final eventController = TextEditingController(text: currentMatch.eventName ?? '');
+    DateTime selectedDate = currentMatch.date;
+
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: const Text('Edit Match'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: opponentController,
+                  decoration: const InputDecoration(
+                    labelText: 'Opponent Name',
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: eventController,
+                  decoration: const InputDecoration(
+                    labelText: 'Event Name (Optional)',
+                  ),
+                ),
+                const SizedBox(height: 16),
+                ListTile(
+                  title: const Text('Match Date'),
+                  subtitle: Text(DateFormat('MMMM d, yyyy').format(selectedDate)),
+                  trailing: const Icon(Icons.calendar_today),
+                  onTap: () async {
+                    final picked = await showDatePicker(
+                      context: context,
+                      initialDate: selectedDate,
+                      firstDate: DateTime(2000),
+                      lastDate: DateTime(2100),
+                    );
+                    if (picked != null) {
+                      setState(() {
+                        selectedDate = picked;
+                      });
+                    }
+                  },
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                if (opponentController.text.trim().isEmpty) return;
+
+                final updatedMatch = Match(
+                  id: currentMatch.id,
+                  teamId: currentMatch.teamId,
+                  opponentName: opponentController.text.trim(),
+                  eventName: eventController.text.trim().isEmpty
+                      ? null
+                      : eventController.text.trim(),
+                  date: selectedDate,
+                  createdAt: currentMatch.createdAt,
+                );
+
+                final repo = await ref.read(matchRepositoryProvider.future);
+                await repo.updateMatch(updatedMatch);
+                ref.invalidate(matchSetsProvider(currentMatch.id));
+
+                if (mounted) {
+                  setState(() {
+                    currentMatch = updatedMatch;
+                  });
+                  Navigator.of(context).pop();
+                }
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        ),
       ),
     );
   }
