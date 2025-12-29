@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:vbstats/domain/entities/match_entities.dart';
 import 'package:vbstats/presentation/providers/match_providers.dart';
 import 'package:vbstats/presentation/providers/database_providers.dart';
@@ -41,6 +42,10 @@ class MatchDetailScreen extends ConsumerWidget {
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
+                    ),
+                    Text(
+                      DateFormat('MMMM d, yyyy').format(match.date),
+                      style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
                     ),
                     if (match.eventName != null)
                       Text(

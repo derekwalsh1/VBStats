@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:vbstats/domain/entities/match_entities.dart';
 import 'package:vbstats/presentation/providers/team_providers.dart';
 import 'package:vbstats/presentation/providers/database_providers.dart';
@@ -57,9 +58,14 @@ class TeamMatchesScreen extends ConsumerWidget {
                       ),
                       child: ListTile(
                         title: Text('vs ${match.opponentName}'),
-                        subtitle: match.eventName != null
-                            ? Text(match.eventName!)
-                            : null,
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(DateFormat('MMM d, yyyy').format(match.date)),
+                            if (match.eventName != null)
+                              Text(match.eventName!),
+                          ],
+                        ),
                         trailing: const Icon(Icons.chevron_right),
                         onTap: () {
                           Navigator.of(context).push(
