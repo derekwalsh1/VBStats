@@ -1,5 +1,9 @@
 # Ace Your Stats - Volleyball Statistics Tracker
 
+<p align="center">
+  <img src="assets/icon.svg" width="200" alt="Ace Your Stats Icon">
+</p>
+
 A professional volleyball statistics tracking app for coaches and teams, built with Flutter.
 
 ## Features

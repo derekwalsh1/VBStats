@@ -1,5 +1,9 @@
 # Ace Your Stats - Volleyball Statistics Tracker
 
+<p align="center">
+  <img src="assets/icon.svg" width="200" alt="Ace Your Stats Icon">
+</p>
+
 ## Overview
 
 Ace Your Stats is a professional volleyball statistics tracking app designed for coaches, players, and team managers. Track your team's performance in real-time during matches with an intuitive, tablet-optimized interface.
