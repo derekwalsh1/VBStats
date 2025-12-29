@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:vbstats/domain/entities/match_entities.dart';
 import 'package:vbstats/presentation/providers/match_providers.dart';
+import 'package:vbstats/presentation/providers/team_providers.dart';
 import 'package:vbstats/presentation/providers/database_providers.dart';
 import 'package:vbstats/presentation/screens/set_start_screen.dart';
 import 'package:vbstats/presentation/screens/live_set_screen.dart';
@@ -283,7 +284,10 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
 
                 final repo = await ref.read(matchRepositoryProvider.future);
                 await repo.updateMatch(updatedMatch);
+                
+                // Invalidate providers to refresh all views
                 ref.invalidate(matchSetsProvider(currentMatch.id));
+                ref.invalidate(teamMatchesProvider(currentMatch.teamId));
 
                 if (mounted) {
                   setState(() {
