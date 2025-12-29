@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ace Your Stats - Volleyball Statistics Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #89CFF0 0%, #FFB3D9 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo img {
+            width: 150px;
+            height: 150px;
+            border-radius: 30px;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        .tagline {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 40px;
+            font-size: 1.2em;
+        }
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 40px 0;
+        }
+        .feature {
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #89CFF0;
+        }
+        .feature h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+        .feature p {
+            color: #555;
+            font-size: 0.95em;
+        }
+        .links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+        .links a {
+            padding: 12px 30px;
+            background: #89CFF0;
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .links a:hover {
+            background: #FFB3D9;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+            color: #7f8c8d;
+        }
+        footer a {
+            color: #89CFF0;
+            text-decoration: none;
+        }
+        footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <img src="../assets/icon.svg" alt="Ace Your Stats Icon">
+        </div>
+        
+        <h1>Ace Your Stats</h1>
+        <p class="tagline">Professional Volleyball Statistics Tracker</p>
+        
+        <div class="features">
+            <div class="feature">
+                <h3>📊 Real-Time Tracking</h3>
+                <p>Record every rally outcome with automatic scoring and live momentum charts.</p>
+            </div>
+            <div class="feature">
+                <h3>🎯 Detailed Analytics</h3>
+                <p>Point scoring percentage and sideout analysis per rotation.</p>
+            </div>
+            <div class="feature">
+                <h3>⏱️ Timeout Management</h3>
+                <p>Track both teams' timeouts with visual indicators.</p>
+            </div>
+            <div class="feature">
+                <h3>📱 Tablet Optimized</h3>
+                <p>Clean, intuitive interface designed for courtside use.</p>
+            </div>
+            <div class="feature">
+                <h3>💾 Offline First</h3>
+                <p>All features work completely offline with local storage.</p>
+            </div>
+            <div class="feature">
+                <h3>📤 Export/Import</h3>
+                <p>Backup and transfer matches between devices.</p>
+            </div>
+        </div>
+        
+        <div class="links">
+            <a href="privacy.html">Privacy Policy</a>
+            <a href="support.html">Support & Help</a>
+            <a href="https://github.com/derekwalsh1/VBStats">View on GitHub</a>
+        </div>
+        
+        <footer>
+            <p>© 2025 Ace Your Stats | Contact: <a href="mailto:derek.walsh@gmail.com">derek.walsh@gmail.com</a></p>
+        </footer>
+    </div>
+</body>
+</html>
