@@ -1,0 +1,31 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <!-- Clipping path for rounded corners -->
+  <defs>
+    <clipPath id="roundedCorners">
+      <rect width="1024" height="1024" rx="180"/>
+    </clipPath>
+  </defs>
+  
+  <!-- Background with sharp split -->
+  <g clip-path="url(#roundedCorners)">
+    <!-- Top half - Baby Blue -->
+    <rect width="1024" height="512" y="0" fill="#89CFF0"/>
+    <!-- Bottom half - Bubble Gum Pink -->
+    <rect width="1024" height="512" y="512" fill="#FFB3D9"/>
+  </g>
+  
+  <!-- ACE text - large and bold -->
+  <text x="512" y="310" 
+        font-family="Arial, Helvetica, sans-serif" 
+        font-size="320" 
+        font-weight="900" 
+        fill="#FFFFFF" 
+        text-anchor="middle"
+        dominant-baseline="middle">ACE</text>
+  
+  <!-- Stats chart bars at bottom -->
+  <rect x="320" y="680" width="80" height="140" fill="#FFFFFF" rx="8"/>
+  <rect x="430" y="640" width="80" height="180" fill="#FFFFFF" rx="8"/>
+  <rect x="540" y="600" width="80" height="220" fill="#FFFFFF" rx="8"/>
+  <rect x="650" y="660" width="80" height="160" fill="#FFFFFF" rx="8"/>
+</svg>
