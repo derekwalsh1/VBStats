@@ -11,7 +11,7 @@ import 'package:vbstats/presentation/widgets/momentum_chart.dart';
 import 'package:vbstats/presentation/widgets/sparkline.dart';
 import 'package:vbstats/presentation/widgets/dot_sparkline.dart';
 
-class LiveSetScreen extends ConsumerWidget {
+class LiveSetScreen extends ConsumerStatefulWidget {
   final Match match;
   final String setId;
 
@@ -22,8 +22,53 @@ class LiveSetScreen extends ConsumerWidget {
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final liveSetState = ref.watch(liveSetProvider(setId));
+  ConsumerState<LiveSetScreen> createState() => _LiveSetScreenState();
+}
+
+class _LiveSetScreenState extends ConsumerState<LiveSetScreen> {
+  bool _showingSixSevenOverlay = false;
+  int? _lastOurScore;
+  int? _lastOppScore;
+
+  void _checkForSixSeven(int ourScore, int oppScore) {
+    // Only show if we haven't seen this score before
+    if (_lastOurScore == ourScore && _lastOppScore == oppScore) return;
+    
+    _lastOurScore = ourScore;
+    _lastOppScore = oppScore;
+
+    if ((ourScore == 6 && oppScore == 7) || (ourScore == 7 && oppScore == 6)) {
+      if (!_showingSixSevenOverlay) {
+        _showingSixSevenOverlay = true;
+        _showSixSevenOverlay();
+      }
+    }
+  }
+
+  void _showSixSevenOverlay() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      barrierColor: Colors.black87,
+      builder: (context) => const Center(
+        child: Text(
+          '🤷 🤷',
+          style: TextStyle(fontSize: 120),
+        ),
+      ),
+    );
+
+    Future.delayed(const Duration(milliseconds: 1500), () {
+      if (mounted) {
+        Navigator.of(context).pop();
+        _showingSixSevenOverlay = false;
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final liveSetState = ref.watch(liveSetProvider(widget.setId));
 
     if (liveSetState == null) {
       return Scaffold(
@@ -37,15 +82,18 @@ class LiveSetScreen extends ConsumerWidget {
     final statsComputer = SetStatsComputer(rallies);
     final rotationStats = RotationStatsComputer(rallies);
 
+    // Check for 6-7 score
+    _checkForSixSeven(set.ourScore, set.oppScore);
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('Set ${set.setIndex} - ${match.opponentName}'),
+        title: Text('Set ${set.setIndex} - ${widget.match.opponentName}'),
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
             // Invalidate match sets provider to refresh scores
-            ref.invalidate(matchSetsProvider(match.id));
+            ref.invalidate(matchSetsProvider(widget.match.id));
             Navigator.of(context).pop();
           },
         ),
@@ -59,7 +107,7 @@ class LiveSetScreen extends ConsumerWidget {
             onPressed: rallies.isEmpty
                 ? null
                 : () {
-                    ref.read(liveSetProvider(setId).notifier).undo();
+                    ref.read(liveSetProvider(widget.setId).notifier).undo();
                   },
           ),
         ],
@@ -151,10 +199,10 @@ class LiveSetScreen extends ConsumerWidget {
                       onPressed: () {
                         if (ourT1Used) {
                           // Undo T1
-                          ref.read(liveSetProvider(setId).notifier).useTimeout(true, 0);
+                          ref.read(liveSetProvider(widget.setId).notifier).useTimeout(true, 0);
                         } else {
                           // Use T1
-                          ref.read(liveSetProvider(setId).notifier).useTimeout(true, 1);
+                          ref.read(liveSetProvider(widget.setId).notifier).useTimeout(true, 1);
                         }
                       },
                       style: ElevatedButton.styleFrom(
@@ -173,10 +221,10 @@ class LiveSetScreen extends ConsumerWidget {
                       onPressed: ourT1Used ? () {
                         if (ourT2Used) {
                           // Undo T2
-                          ref.read(liveSetProvider(setId).notifier).useTimeout(true, 1);
+                          ref.read(liveSetProvider(widget.setId).notifier).useTimeout(true, 1);
                         } else {
                           // Use T2
-                          ref.read(liveSetProvider(setId).notifier).useTimeout(true, 2);
+                          ref.read(liveSetProvider(widget.setId).notifier).useTimeout(true, 2);
                         }
                       } : null,
                       style: ElevatedButton.styleFrom(
@@ -226,10 +274,10 @@ class LiveSetScreen extends ConsumerWidget {
                       onPressed: () {
                         if (oppT1Used) {
                           // Undo T1
-                          ref.read(liveSetProvider(setId).notifier).useTimeout(false, 0);
+                          ref.read(liveSetProvider(widget.setId).notifier).useTimeout(false, 0);
                         } else {
                           // Use T1
-                          ref.read(liveSetProvider(setId).notifier).useTimeout(false, 1);
+                          ref.read(liveSetProvider(widget.setId).notifier).useTimeout(false, 1);
                         }
                       },
                       style: ElevatedButton.styleFrom(
@@ -248,10 +296,10 @@ class LiveSetScreen extends ConsumerWidget {
                       onPressed: oppT1Used ? () {
                         if (oppT2Used) {
                           // Undo T2
-                          ref.read(liveSetProvider(setId).notifier).useTimeout(false, 1);
+                          ref.read(liveSetProvider(widget.setId).notifier).useTimeout(false, 1);
                         } else {
                           // Use T2
-                          ref.read(liveSetProvider(setId).notifier).useTimeout(false, 2);
+                          ref.read(liveSetProvider(widget.setId).notifier).useTimeout(false, 2);
                         }
                       } : null,
                       style: ElevatedButton.styleFrom(
@@ -353,7 +401,7 @@ class LiveSetScreen extends ConsumerWidget {
                     aspectRatio: 1.5,
                     child: ElevatedButton(
                       onPressed: state.currentServeReceiveState == ServeReceiveState.serve
-                          ? () => ref.read(liveSetProvider(setId).notifier).addRally(RallyOutcome.ace)
+                          ? () => ref.read(liveSetProvider(widget.setId).notifier).addRally(RallyOutcome.ace)
                           : null,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green,
@@ -373,7 +421,7 @@ class LiveSetScreen extends ConsumerWidget {
                   child: AspectRatio(
                     aspectRatio: 1.5,
                     child: ElevatedButton(
-                      onPressed: () => ref.read(liveSetProvider(setId).notifier).addRally(RallyOutcome.kill),
+                      onPressed: () => ref.read(liveSetProvider(widget.setId).notifier).addRally(RallyOutcome.kill),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green,
                         padding: const EdgeInsets.all(2),
@@ -391,7 +439,7 @@ class LiveSetScreen extends ConsumerWidget {
                   child: AspectRatio(
                     aspectRatio: 1.5,
                     child: ElevatedButton(
-                      onPressed: () => ref.read(liveSetProvider(setId).notifier).addRally(RallyOutcome.block),
+                      onPressed: () => ref.read(liveSetProvider(widget.setId).notifier).addRally(RallyOutcome.block),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green,
                         padding: const EdgeInsets.all(2),
@@ -413,7 +461,7 @@ class LiveSetScreen extends ConsumerWidget {
                   child: AspectRatio(
                     aspectRatio: 1.5,
                     child: ElevatedButton(
-                      onPressed: () => ref.read(liveSetProvider(setId).notifier).addRally(RallyOutcome.opponentError),
+                      onPressed: () => ref.read(liveSetProvider(widget.setId).notifier).addRally(RallyOutcome.opponentError),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green,
                         padding: const EdgeInsets.all(2),
@@ -431,7 +479,7 @@ class LiveSetScreen extends ConsumerWidget {
                   child: AspectRatio(
                     aspectRatio: 1.5,
                     child: ElevatedButton(
-                      onPressed: () => ref.read(liveSetProvider(setId).notifier).addRally(RallyOutcome.opponentFault),
+                      onPressed: () => ref.read(liveSetProvider(widget.setId).notifier).addRally(RallyOutcome.opponentFault),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green,
                         padding: const EdgeInsets.all(2),
@@ -461,7 +509,7 @@ class LiveSetScreen extends ConsumerWidget {
                     aspectRatio: 1.5,
                     child: ElevatedButton(
                       onPressed: state.currentServeReceiveState == ServeReceiveState.serve
-                          ? () => ref.read(liveSetProvider(setId).notifier).addRally(RallyOutcome.serveError)
+                          ? () => ref.read(liveSetProvider(widget.setId).notifier).addRally(RallyOutcome.serveError)
                           : null,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red,
@@ -481,7 +529,7 @@ class LiveSetScreen extends ConsumerWidget {
                   child: AspectRatio(
                     aspectRatio: 1.5,
                     child: ElevatedButton(
-                      onPressed: () => ref.read(liveSetProvider(setId).notifier).addRally(RallyOutcome.attackError),
+                      onPressed: () => ref.read(liveSetProvider(widget.setId).notifier).addRally(RallyOutcome.attackError),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red,
                         padding: const EdgeInsets.all(2),
@@ -500,7 +548,7 @@ class LiveSetScreen extends ConsumerWidget {
                     aspectRatio: 1.5,
                     child: ElevatedButton(
                       onPressed: state.currentServeReceiveState == ServeReceiveState.receive
-                          ? () => ref.read(liveSetProvider(setId).notifier).addRally(RallyOutcome.receiveError)
+                          ? () => ref.read(liveSetProvider(widget.setId).notifier).addRally(RallyOutcome.receiveError)
                           : null,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red,
@@ -524,7 +572,7 @@ class LiveSetScreen extends ConsumerWidget {
                   child: AspectRatio(
                     aspectRatio: 1.5,
                     child: ElevatedButton(
-                      onPressed: () => ref.read(liveSetProvider(setId).notifier).addRally(RallyOutcome.digError),
+                      onPressed: () => ref.read(liveSetProvider(widget.setId).notifier).addRally(RallyOutcome.digError),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red,
                         padding: const EdgeInsets.all(2),
@@ -542,7 +590,7 @@ class LiveSetScreen extends ConsumerWidget {
                   child: AspectRatio(
                     aspectRatio: 1.5,
                     child: ElevatedButton(
-                      onPressed: () => ref.read(liveSetProvider(setId).notifier).addRally(RallyOutcome.blockError),
+                      onPressed: () => ref.read(liveSetProvider(widget.setId).notifier).addRally(RallyOutcome.blockError),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red,
                         padding: const EdgeInsets.all(2),
@@ -560,7 +608,7 @@ class LiveSetScreen extends ConsumerWidget {
                   child: AspectRatio(
                     aspectRatio: 1.5,
                     child: ElevatedButton(
-                      onPressed: () => ref.read(liveSetProvider(setId).notifier).addRally(RallyOutcome.coverError),
+                      onPressed: () => ref.read(liveSetProvider(widget.setId).notifier).addRally(RallyOutcome.coverError),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red,
                         padding: const EdgeInsets.all(2),
@@ -582,7 +630,7 @@ class LiveSetScreen extends ConsumerWidget {
                   child: AspectRatio(
                     aspectRatio: 1.5,
                     child: ElevatedButton(
-                      onPressed: () => ref.read(liveSetProvider(setId).notifier).addRally(RallyOutcome.ruleViolation),
+                      onPressed: () => ref.read(liveSetProvider(widget.setId).notifier).addRally(RallyOutcome.ruleViolation),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red,
                         padding: const EdgeInsets.all(2),
@@ -600,7 +648,7 @@ class LiveSetScreen extends ConsumerWidget {
                   child: AspectRatio(
                     aspectRatio: 1.5,
                     child: ElevatedButton(
-                      onPressed: () => ref.read(liveSetProvider(setId).notifier).addRally(RallyOutcome.freeBallError),
+                      onPressed: () => ref.read(liveSetProvider(widget.setId).notifier).addRally(RallyOutcome.freeBallError),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red,
                         padding: const EdgeInsets.all(2),

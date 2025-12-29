@@ -14,7 +14,7 @@ class HomeScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('VBStats'),
+        title: const Text('Ace Your Stats'),
         centerTitle: true,
       ),
       body: teamsAsync.when(
