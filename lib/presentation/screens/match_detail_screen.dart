@@ -104,76 +104,57 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
                           ],
                         ),
                       )
-                    : ListView.builder(
-                        padding: const EdgeInsets.all(8),
-                        itemCount: sets.length,
-                        itemBuilder: (context, index) {
-                          final set = sets[index];
-                          return Dismissible(
-                            key: Key(set.id),
-                            direction: DismissDirection.endToStart,
-                            background: Container(
-                              alignment: Alignment.centerRight,
-                              padding: const EdgeInsets.only(right: 16),
-                              color: Colors.red,
-                              child: const Icon(
-                                Icons.delete,
-                                color: Colors.white,
-                                size: 32,
-                              ),
-                            ),
-                            confirmDismiss: (direction) async {
-                              return await showDialog(
-                                context: context,
-                                builder: (context) => AlertDialog(
-                                  title: const Text('Delete Set'),
-                                  content: Text(
-                                    'Are you sure you want to delete Set ${set.setIndex}? This will also delete all rallies in this set.',
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () => Navigator.of(context).pop(false),
-                                      child: const Text('Cancel'),
-                                    ),
-                                    TextButton(
-                                      onPressed: () => Navigator.of(context).pop(true),
-                                      style: TextButton.styleFrom(
-                                        foregroundColor: Colors.red,
+                    : Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: GridView.builder(
+                          gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                            maxCrossAxisExtent: 200,
+                            childAspectRatio: 1.1,
+                            crossAxisSpacing: 12,
+                            mainAxisSpacing: 12,
+                          ),
+                          itemCount: sets.length + 1, // +1 for add set tile
+                          itemBuilder: (context, index) {
+                            if (index == sets.length) {
+                              // Add set tile
+                              return Card(
+                                elevation: 4,
+                                color: Colors.grey.shade200,
+                                child: InkWell(
+                                  onTap: () {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (context) => SetStartScreen(match: currentMatch),
                                       ),
-                                      child: const Text('Delete'),
+                                    );
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.all(16),
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Icon(Icons.add_circle_outline, size: 48, color: Colors.grey.shade600),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          'Add Set',
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.grey.shade600,
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                  ],
+                                  ),
                                 ),
                               );
-                            },
-                            onDismissed: (direction) async {
-                              final repo = await ref.read(matchRepositoryProvider.future);
-                              await repo.deleteSet(set.id);
-                              ref.invalidate(matchSetsProvider(currentMatch.id));
-                              if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('Set ${set.setIndex} deleted'),
-                                    action: SnackBarAction(
-                                      label: 'Dismiss',
-                                      onPressed: () {},
-                                    ),
-                                  ),
-                                );
-                              }
-                            },
-                            child: Card(
-                              margin: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
-                              ),
-                              child: ListTile(
-                                title: Text('Set ${set.setIndex}'),
-                                subtitle: Text(
-                                  '${set.ourScore} - ${set.oppScore}',
-                                  style: const TextStyle(fontSize: 16),
-                                ),
-                                trailing: const Icon(Icons.chevron_right),
+                            }
+                            
+                            final set = sets[index];
+                            final bool weWon = set.ourScore > set.oppScore;
+                            return Card(
+                              elevation: 4,
+                              child: InkWell(
                                 onTap: () {
                                   Navigator.of(context).push(
                                     MaterialPageRoute(
@@ -184,33 +165,106 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
                                     ),
                                   );
                                 },
+                                onLongPress: () => _showDeleteSetConfirmation(context, ref, set),
+                                child: Container(
+                                  padding: const EdgeInsets.all(12),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        'Set ${set.setIndex}',
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            '${set.ourScore}',
+                                            style: TextStyle(
+                                              fontSize: 32,
+                                              fontWeight: FontWeight.bold,
+                                              color: weWon ? Colors.green : Colors.red,
+                                            ),
+                                          ),
+                                          const Text(
+                                            ' - ',
+                                            style: TextStyle(fontSize: 24),
+                                          ),
+                                          Text(
+                                            '${set.oppScore}',
+                                            style: const TextStyle(
+                                              fontSize: 32,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Icon(
+                                        weWon ? Icons.check_circle : Icons.cancel,
+                                        color: weWon ? Colors.green : Colors.red,
+                                        size: 20,
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ),
-                            ),
-                          );
-                        },
+                            );
+                          },
+                        ),
                       ),
               ),
-              // Add Set button
-              if (sets.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: ElevatedButton.icon(
-                    onPressed: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => SetStartScreen(match: currentMatch),
-                        ),
-                      );
-                    },
-                    icon: const Icon(Icons.add),
-                    label: const Text('Add Set'),
-                  ),
-                ),
             ],
           );
         },
       ),
     );
+  }
+
+  void _showDeleteSetConfirmation(BuildContext context, WidgetRef ref, Set set) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Set'),
+        content: Text(
+          'Are you sure you want to delete Set ${set.setIndex}? This will also delete all rallies in this set.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.red,
+            ),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    
+    if (confirmed == true && context.mounted) {
+      final repo = await ref.read(matchRepositoryProvider.future);
+      await repo.deleteSet(set.id);
+      ref.invalidate(matchSetsProvider(currentMatch.id));
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Set ${set.setIndex} deleted'),
+            action: SnackBarAction(
+              label: 'Dismiss',
+              onPressed: () {},
+            ),
+          ),
+        );
+      }
+    }
   }
 
   void _showEditMatchDialog(BuildContext context, WidgetRef ref) {

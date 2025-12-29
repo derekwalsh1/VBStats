@@ -78,109 +78,161 @@ class TeamMatchesScreen extends ConsumerWidget {
             );
           }
 
-          return Column(
-            children: [
-              Expanded(
-                child: ListView.builder(
-                  padding: const EdgeInsets.all(8),
-                  itemCount: matches.length,
-                  itemBuilder: (context, index) {
-                    final match = matches[index];
-                    return Dismissible(
-                      key: Key(match.id),
-                      direction: DismissDirection.endToStart,
-                      background: Container(
-                        alignment: Alignment.centerRight,
-                        padding: const EdgeInsets.only(right: 16),
-                        color: Colors.red,
-                        child: const Icon(
-                          Icons.delete,
-                          color: Colors.white,
-                          size: 32,
+          return Padding(
+            padding: const EdgeInsets.all(16),
+            child: GridView.builder(
+              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                maxCrossAxisExtent: 200,
+                childAspectRatio: 0.85,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+              ),
+              itemCount: matches.length + 1, // +1 for add match tile
+              itemBuilder: (context, index) {
+                if (index == matches.length) {
+                  // Add match tile
+                  return Card(
+                    elevation: 4,
+                    color: Colors.grey.shade200,
+                    child: InkWell(
+                      onTap: () => _showCreateMatchDialog(context, ref),
+                      onLongPress: () => _showDeleteConfirmation(context, ref, null, index),
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.add_circle_outline, size: 48, color: Colors.grey.shade600),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Add Match',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey.shade600,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
                         ),
                       ),
-                      confirmDismiss: (direction) async {
-                        return await showDialog(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                            title: const Text('Delete Match'),
-                            content: Text(
-                              'Are you sure you want to delete the match against ${match.opponentName}? This will also delete all sets and rallies.',
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.of(context).pop(false),
-                                child: const Text('Cancel'),
-                              ),
-                              TextButton(
-                                onPressed: () => Navigator.of(context).pop(true),
-                                style: TextButton.styleFrom(
-                                  foregroundColor: Colors.red,
-                                ),
-                                child: const Text('Delete'),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                      onDismissed: (direction) async {
-                        final repo = await ref.read(matchRepositoryProvider.future);
-                        await repo.deleteMatch(match.id);
-                        ref.invalidate(teamMatchesProvider(team.id));
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Match against ${match.opponentName} deleted'),
-                              action: SnackBarAction(
-                                label: 'Dismiss',
-                                onPressed: () {},
-                              ),
-                            ),
-                          );
-                        }
-                      },
-                      child: Card(
-                        margin: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
+                    ),
+                  );
+                }
+                
+                final match = matches[index];
+                return Card(
+                  elevation: 4,
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => MatchDetailScreen(match: match),
                         ),
-                        child: ListTile(
-                          title: Text('vs ${match.opponentName}'),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(DateFormat('MMM d, yyyy').format(match.date)),
-                              if (match.eventName != null)
-                                Text(match.eventName!),
-                            ],
+                      );
+                    },
+                    onLongPress: () => _showDeleteConfirmation(context, ref, match, index),
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          CircleAvatar(
+                            radius: 28,
+                            child: Text(
+                              match.opponentName[0].toUpperCase(),
+                              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                            ),
                           ),
-                          trailing: const Icon(Icons.chevron_right),
-                          onTap: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) => MatchDetailScreen(match: match),
+                          const SizedBox(height: 8),
+                          Text(
+                            'vs ${match.opponentName}',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            DateFormat('MMM d, yyyy').format(match.date),
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: Colors.grey.shade600,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          if (match.eventName != null) ...[
+                            const SizedBox(height: 2),
+                            Text(
+                              match.eventName!,
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: Colors.grey.shade500,
                               ),
-                            );
-                          },
-                        ),
+                              textAlign: TextAlign.center,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ],
                       ),
-                    );
-                  },
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: ElevatedButton.icon(
-                  onPressed: () => _showCreateMatchDialog(context, ref),
-                  icon: const Icon(Icons.add),
-                  label: const Text('Create Match'),
-                ),
-              ),
-            ],
+                    ),
+                  ),
+                );
+              },
+            ),
           );
         },
       ),
     );
+  }
+
+  void _showDeleteConfirmation(BuildContext context, WidgetRef ref, Match? match, int index) async {
+    if (match == null) return; // Don't delete the add tile
+    
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Match'),
+        content: Text(
+          'Are you sure you want to delete the match against ${match.opponentName}? This will also delete all sets and rallies.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.red,
+            ),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    
+    if (confirmed == true && context.mounted) {
+      final repo = await ref.read(matchRepositoryProvider.future);
+      await repo.deleteMatch(match.id);
+      ref.invalidate(teamMatchesProvider(team.id));
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Match against ${match.opponentName} deleted'),
+            action: SnackBarAction(
+              label: 'Dismiss',
+              onPressed: () {},
+            ),
+          ),
+        );
+      }
+    }
   }
 
   void _showCreateMatchDialog(BuildContext context, WidgetRef ref) {
