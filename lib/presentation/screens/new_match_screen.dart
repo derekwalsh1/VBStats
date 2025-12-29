@@ -46,8 +46,13 @@ class _NewMatchScreenState extends ConsumerState<NewMatchScreen> {
           ? null
           : _eventController.text.trim();
 
-      final matchId = await ref.read(
-        createMatchProvider((opponent, event)).future,
+      // Get or create default team
+      final repo = await ref.read(matchRepositoryProvider.future);
+      
+      final matchId = await repo.createMatch(
+        'default-team', // Use default team for matches created outside of team context
+        opponent,
+        eventName: event,
       );
 
       // Invalidate matches list

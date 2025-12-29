@@ -56,7 +56,7 @@ class MatchRepositoryImpl implements MatchRepository {
   }
 
   @override
-  Future<String> createMatch(String teamId, String teamId, String opponentName, {String? eventName}) async {
+  Future<String> createMatch(String teamId, String opponentName, {String? eventName}) async {
     final id = const Uuid().v4();
     final now = DateTime.now();
     await database.insertMatch(MatchesCompanion(

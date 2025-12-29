@@ -22,8 +22,8 @@ final matchSetsProvider =
 
 // Create match mutation
 final createMatchProvider =
-    FutureProvider.family<String, (String, String?)>((ref, args) async {
+    FutureProvider.family<String, (String, String, String?)>((ref, args) async {
   final repo = await ref.watch(matchRepositoryProvider.future);
-  final (opponentName, eventName) = args;
-  return repo.createMatch(opponentName, eventName: eventName);
+  final (teamId, opponentName, eventName) = args;
+  return repo.createMatch(teamId, opponentName, eventName: eventName);
 });
