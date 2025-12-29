@@ -3,12 +3,12 @@ import 'tables.dart';
 
 part 'vbstats_database.g.dart';
 
-@DriftDatabase(tables: [Matches, Sets, Rallies])
+@DriftDatabase(tables: [Teams, Matches, Sets, Rallies])
 class VBStatsDatabase extends _$VBStatsDatabase {
   VBStatsDatabase(QueryExecutor e) : super(e);
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -18,11 +18,42 @@ class VBStatsDatabase extends _$VBStatsDatabase {
         await migrator.addColumn(sets, sets.ourTimeoutsUsed);
         await migrator.addColumn(sets, sets.oppTimeoutsUsed);
       }
+      if (from <= 2) {
+        // Create teams table and add teamId to matches
+        await migrator.createTable(teams);
+        // Add teamId column with a default team
+        await migrator.addColumn(matches, matches.teamId);
+        // Create a default team for existing matches
+        await customStatement(
+          "INSERT OR IGNORE INTO teams (id, name, created_at) VALUES ('default-team', 'My Team', datetime('now'))"
+        );
+        await customStatement(
+          "UPDATE matches SET team_id = 'default-team' WHERE team_id IS NULL OR team_id = ''"
+        );
+      }
     },
   );
 
+  // Team queries
+  Future<List<TeamEntity>> getAllTeams() => select(teams).get();
+
+  Future<TeamEntity?> getTeamById(String id) =>
+      (select(teams)..where((t) => t.id.equals(id))).getSingleOrNull();
+
+  Future<int> insertTeam(TeamsCompanion team) =>
+      into(teams).insert(team);
+
+  Future<bool> updateTeam(TeamsCompanion team) =>
+      update(teams).replace(team);
+
+  Future<int> deleteTeam(String id) =>
+      (delete(teams)..where((t) => t.id.equals(id))).go();
+
   // Match queries
   Future<List<MatchEntity>> getAllMatches() => select(matches).get();
+
+  Future<List<MatchEntity>> getMatchesByTeam(String teamId) =>
+      (select(matches)..where((m) => m.teamId.equals(teamId))).get();
 
   Future<MatchEntity?> getMatchById(String id) =>
       (select(matches)..where((m) => m.id.equals(id))).getSingleOrNull();

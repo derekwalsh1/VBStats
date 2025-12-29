@@ -1,9 +1,21 @@
 import 'package:drift/drift.dart';
 
+// Team table
+@DataClassName("TeamEntity")
+class Teams extends Table {
+  TextColumn get id => text()();
+  TextColumn get name => text()();
+  DateTimeColumn get createdAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 // Match table
 @DataClassName("MatchEntity")
 class Matches extends Table {
   TextColumn get id => text()();
+  TextColumn get teamId => text()();
   TextColumn get opponentName => text()();
   TextColumn get eventName => text().nullable()();
   DateTimeColumn get date => dateTime()();

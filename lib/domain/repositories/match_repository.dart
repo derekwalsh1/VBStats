@@ -2,8 +2,9 @@ import 'package:vbstats/domain/entities/match_entities.dart';
 
 abstract class MatchRepository {
   Future<List<Match>> getAllMatches();
+  Future<List<Match>> getMatchesByTeam(String teamId);
   Future<Match?> getMatchById(String id);
-  Future<String> createMatch(String opponentName, {String? eventName});
+  Future<String> createMatch(String teamId, String opponentName, {String? eventName});
   Future<void> updateMatch(Match match);
   Future<void> deleteMatch(String id);
 

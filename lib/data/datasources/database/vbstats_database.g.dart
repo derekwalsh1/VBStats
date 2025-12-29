@@ -3,6 +3,264 @@
 part of 'vbstats_database.dart';
 
 // ignore_for_file: type=lint
+class $TeamsTable extends Teams with TableInfo<$TeamsTable, TeamEntity> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TeamsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, name, createdAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'teams';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<TeamEntity> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  TeamEntity map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TeamEntity(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $TeamsTable createAlias(String alias) {
+    return $TeamsTable(attachedDatabase, alias);
+  }
+}
+
+class TeamEntity extends DataClass implements Insertable<TeamEntity> {
+  final String id;
+  final String name;
+  final DateTime createdAt;
+  const TeamEntity({
+    required this.id,
+    required this.name,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['name'] = Variable<String>(name);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  TeamsCompanion toCompanion(bool nullToAbsent) {
+    return TeamsCompanion(
+      id: Value(id),
+      name: Value(name),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory TeamEntity.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TeamEntity(
+      id: serializer.fromJson<String>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'name': serializer.toJson<String>(name),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  TeamEntity copyWith({String? id, String? name, DateTime? createdAt}) =>
+      TeamEntity(
+        id: id ?? this.id,
+        name: name ?? this.name,
+        createdAt: createdAt ?? this.createdAt,
+      );
+  TeamEntity copyWithCompanion(TeamsCompanion data) {
+    return TeamEntity(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TeamEntity(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, name, createdAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TeamEntity &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.createdAt == this.createdAt);
+}
+
+class TeamsCompanion extends UpdateCompanion<TeamEntity> {
+  final Value<String> id;
+  final Value<String> name;
+  final Value<DateTime> createdAt;
+  final Value<int> rowid;
+  const TeamsCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  TeamsCompanion.insert({
+    required String id,
+    required String name,
+    required DateTime createdAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       name = Value(name),
+       createdAt = Value(createdAt);
+  static Insertable<TeamEntity> custom({
+    Expression<String>? id,
+    Expression<String>? name,
+    Expression<DateTime>? createdAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (createdAt != null) 'created_at': createdAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  TeamsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? name,
+    Value<DateTime>? createdAt,
+    Value<int>? rowid,
+  }) {
+    return TeamsCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      createdAt: createdAt ?? this.createdAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TeamsCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $MatchesTable extends Matches with TableInfo<$MatchesTable, MatchEntity> {
   @override
   final GeneratedDatabase attachedDatabase;
@@ -12,6 +270,15 @@ class $MatchesTable extends Matches with TableInfo<$MatchesTable, MatchEntity> {
   @override
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
     'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _teamIdMeta = const VerificationMeta('teamId');
+  @override
+  late final GeneratedColumn<String> teamId = GeneratedColumn<String>(
+    'team_id',
     aliasedName,
     false,
     type: DriftSqlType.string,
@@ -62,6 +329,7 @@ class $MatchesTable extends Matches with TableInfo<$MatchesTable, MatchEntity> {
   @override
   List<GeneratedColumn> get $columns => [
     id,
+    teamId,
     opponentName,
     eventName,
     date,
@@ -83,6 +351,14 @@ class $MatchesTable extends Matches with TableInfo<$MatchesTable, MatchEntity> {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     } else if (isInserting) {
       context.missing(_idMeta);
+    }
+    if (data.containsKey('team_id')) {
+      context.handle(
+        _teamIdMeta,
+        teamId.isAcceptableOrUnknown(data['team_id']!, _teamIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_teamIdMeta);
     }
     if (data.containsKey('opponent_name')) {
       context.handle(
@@ -130,6 +406,10 @@ class $MatchesTable extends Matches with TableInfo<$MatchesTable, MatchEntity> {
         DriftSqlType.string,
         data['${effectivePrefix}id'],
       )!,
+      teamId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}team_id'],
+      )!,
       opponentName: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}opponent_name'],
@@ -157,12 +437,14 @@ class $MatchesTable extends Matches with TableInfo<$MatchesTable, MatchEntity> {
 
 class MatchEntity extends DataClass implements Insertable<MatchEntity> {
   final String id;
+  final String teamId;
   final String opponentName;
   final String? eventName;
   final DateTime date;
   final DateTime createdAt;
   const MatchEntity({
     required this.id,
+    required this.teamId,
     required this.opponentName,
     this.eventName,
     required this.date,
@@ -172,6 +454,7 @@ class MatchEntity extends DataClass implements Insertable<MatchEntity> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
+    map['team_id'] = Variable<String>(teamId);
     map['opponent_name'] = Variable<String>(opponentName);
     if (!nullToAbsent || eventName != null) {
       map['event_name'] = Variable<String>(eventName);
@@ -184,6 +467,7 @@ class MatchEntity extends DataClass implements Insertable<MatchEntity> {
   MatchesCompanion toCompanion(bool nullToAbsent) {
     return MatchesCompanion(
       id: Value(id),
+      teamId: Value(teamId),
       opponentName: Value(opponentName),
       eventName: eventName == null && nullToAbsent
           ? const Value.absent()
@@ -200,6 +484,7 @@ class MatchEntity extends DataClass implements Insertable<MatchEntity> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return MatchEntity(
       id: serializer.fromJson<String>(json['id']),
+      teamId: serializer.fromJson<String>(json['teamId']),
       opponentName: serializer.fromJson<String>(json['opponentName']),
       eventName: serializer.fromJson<String?>(json['eventName']),
       date: serializer.fromJson<DateTime>(json['date']),
@@ -211,6 +496,7 @@ class MatchEntity extends DataClass implements Insertable<MatchEntity> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
+      'teamId': serializer.toJson<String>(teamId),
       'opponentName': serializer.toJson<String>(opponentName),
       'eventName': serializer.toJson<String?>(eventName),
       'date': serializer.toJson<DateTime>(date),
@@ -220,12 +506,14 @@ class MatchEntity extends DataClass implements Insertable<MatchEntity> {
 
   MatchEntity copyWith({
     String? id,
+    String? teamId,
     String? opponentName,
     Value<String?> eventName = const Value.absent(),
     DateTime? date,
     DateTime? createdAt,
   }) => MatchEntity(
     id: id ?? this.id,
+    teamId: teamId ?? this.teamId,
     opponentName: opponentName ?? this.opponentName,
     eventName: eventName.present ? eventName.value : this.eventName,
     date: date ?? this.date,
@@ -234,6 +522,7 @@ class MatchEntity extends DataClass implements Insertable<MatchEntity> {
   MatchEntity copyWithCompanion(MatchesCompanion data) {
     return MatchEntity(
       id: data.id.present ? data.id.value : this.id,
+      teamId: data.teamId.present ? data.teamId.value : this.teamId,
       opponentName: data.opponentName.present
           ? data.opponentName.value
           : this.opponentName,
@@ -247,6 +536,7 @@ class MatchEntity extends DataClass implements Insertable<MatchEntity> {
   String toString() {
     return (StringBuffer('MatchEntity(')
           ..write('id: $id, ')
+          ..write('teamId: $teamId, ')
           ..write('opponentName: $opponentName, ')
           ..write('eventName: $eventName, ')
           ..write('date: $date, ')
@@ -256,12 +546,14 @@ class MatchEntity extends DataClass implements Insertable<MatchEntity> {
   }
 
   @override
-  int get hashCode => Object.hash(id, opponentName, eventName, date, createdAt);
+  int get hashCode =>
+      Object.hash(id, teamId, opponentName, eventName, date, createdAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is MatchEntity &&
           other.id == this.id &&
+          other.teamId == this.teamId &&
           other.opponentName == this.opponentName &&
           other.eventName == this.eventName &&
           other.date == this.date &&
@@ -270,6 +562,7 @@ class MatchEntity extends DataClass implements Insertable<MatchEntity> {
 
 class MatchesCompanion extends UpdateCompanion<MatchEntity> {
   final Value<String> id;
+  final Value<String> teamId;
   final Value<String> opponentName;
   final Value<String?> eventName;
   final Value<DateTime> date;
@@ -277,6 +570,7 @@ class MatchesCompanion extends UpdateCompanion<MatchEntity> {
   final Value<int> rowid;
   const MatchesCompanion({
     this.id = const Value.absent(),
+    this.teamId = const Value.absent(),
     this.opponentName = const Value.absent(),
     this.eventName = const Value.absent(),
     this.date = const Value.absent(),
@@ -285,17 +579,20 @@ class MatchesCompanion extends UpdateCompanion<MatchEntity> {
   });
   MatchesCompanion.insert({
     required String id,
+    required String teamId,
     required String opponentName,
     this.eventName = const Value.absent(),
     required DateTime date,
     required DateTime createdAt,
     this.rowid = const Value.absent(),
   }) : id = Value(id),
+       teamId = Value(teamId),
        opponentName = Value(opponentName),
        date = Value(date),
        createdAt = Value(createdAt);
   static Insertable<MatchEntity> custom({
     Expression<String>? id,
+    Expression<String>? teamId,
     Expression<String>? opponentName,
     Expression<String>? eventName,
     Expression<DateTime>? date,
@@ -304,6 +601,7 @@ class MatchesCompanion extends UpdateCompanion<MatchEntity> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (teamId != null) 'team_id': teamId,
       if (opponentName != null) 'opponent_name': opponentName,
       if (eventName != null) 'event_name': eventName,
       if (date != null) 'date': date,
@@ -314,6 +612,7 @@ class MatchesCompanion extends UpdateCompanion<MatchEntity> {
 
   MatchesCompanion copyWith({
     Value<String>? id,
+    Value<String>? teamId,
     Value<String>? opponentName,
     Value<String?>? eventName,
     Value<DateTime>? date,
@@ -322,6 +621,7 @@ class MatchesCompanion extends UpdateCompanion<MatchEntity> {
   }) {
     return MatchesCompanion(
       id: id ?? this.id,
+      teamId: teamId ?? this.teamId,
       opponentName: opponentName ?? this.opponentName,
       eventName: eventName ?? this.eventName,
       date: date ?? this.date,
@@ -335,6 +635,9 @@ class MatchesCompanion extends UpdateCompanion<MatchEntity> {
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<String>(id.value);
+    }
+    if (teamId.present) {
+      map['team_id'] = Variable<String>(teamId.value);
     }
     if (opponentName.present) {
       map['opponent_name'] = Variable<String>(opponentName.value);
@@ -358,6 +661,7 @@ class MatchesCompanion extends UpdateCompanion<MatchEntity> {
   String toString() {
     return (StringBuffer('MatchesCompanion(')
           ..write('id: $id, ')
+          ..write('teamId: $teamId, ')
           ..write('opponentName: $opponentName, ')
           ..write('eventName: $eventName, ')
           ..write('date: $date, ')
@@ -1532,6 +1836,7 @@ class RalliesCompanion extends UpdateCompanion<RallyEntity> {
 abstract class _$VBStatsDatabase extends GeneratedDatabase {
   _$VBStatsDatabase(QueryExecutor e) : super(e);
   $VBStatsDatabaseManager get managers => $VBStatsDatabaseManager(this);
+  late final $TeamsTable teams = $TeamsTable(this);
   late final $MatchesTable matches = $MatchesTable(this);
   late final $SetsTable sets = $SetsTable(this);
   late final $RalliesTable rallies = $RalliesTable(this);
@@ -1539,12 +1844,177 @@ abstract class _$VBStatsDatabase extends GeneratedDatabase {
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [matches, sets, rallies];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [
+    teams,
+    matches,
+    sets,
+    rallies,
+  ];
 }
 
+typedef $$TeamsTableCreateCompanionBuilder =
+    TeamsCompanion Function({
+      required String id,
+      required String name,
+      required DateTime createdAt,
+      Value<int> rowid,
+    });
+typedef $$TeamsTableUpdateCompanionBuilder =
+    TeamsCompanion Function({
+      Value<String> id,
+      Value<String> name,
+      Value<DateTime> createdAt,
+      Value<int> rowid,
+    });
+
+class $$TeamsTableFilterComposer
+    extends Composer<_$VBStatsDatabase, $TeamsTable> {
+  $$TeamsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$TeamsTableOrderingComposer
+    extends Composer<_$VBStatsDatabase, $TeamsTable> {
+  $$TeamsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$TeamsTableAnnotationComposer
+    extends Composer<_$VBStatsDatabase, $TeamsTable> {
+  $$TeamsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$TeamsTableTableManager
+    extends
+        RootTableManager<
+          _$VBStatsDatabase,
+          $TeamsTable,
+          TeamEntity,
+          $$TeamsTableFilterComposer,
+          $$TeamsTableOrderingComposer,
+          $$TeamsTableAnnotationComposer,
+          $$TeamsTableCreateCompanionBuilder,
+          $$TeamsTableUpdateCompanionBuilder,
+          (
+            TeamEntity,
+            BaseReferences<_$VBStatsDatabase, $TeamsTable, TeamEntity>,
+          ),
+          TeamEntity,
+          PrefetchHooks Function()
+        > {
+  $$TeamsTableTableManager(_$VBStatsDatabase db, $TeamsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$TeamsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TeamsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TeamsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => TeamsCompanion(
+                id: id,
+                name: name,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String name,
+                required DateTime createdAt,
+                Value<int> rowid = const Value.absent(),
+              }) => TeamsCompanion.insert(
+                id: id,
+                name: name,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$TeamsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$VBStatsDatabase,
+      $TeamsTable,
+      TeamEntity,
+      $$TeamsTableFilterComposer,
+      $$TeamsTableOrderingComposer,
+      $$TeamsTableAnnotationComposer,
+      $$TeamsTableCreateCompanionBuilder,
+      $$TeamsTableUpdateCompanionBuilder,
+      (TeamEntity, BaseReferences<_$VBStatsDatabase, $TeamsTable, TeamEntity>),
+      TeamEntity,
+      PrefetchHooks Function()
+    >;
 typedef $$MatchesTableCreateCompanionBuilder =
     MatchesCompanion Function({
       required String id,
+      required String teamId,
       required String opponentName,
       Value<String?> eventName,
       required DateTime date,
@@ -1554,6 +2024,7 @@ typedef $$MatchesTableCreateCompanionBuilder =
 typedef $$MatchesTableUpdateCompanionBuilder =
     MatchesCompanion Function({
       Value<String> id,
+      Value<String> teamId,
       Value<String> opponentName,
       Value<String?> eventName,
       Value<DateTime> date,
@@ -1572,6 +2043,11 @@ class $$MatchesTableFilterComposer
   });
   ColumnFilters<String> get id => $composableBuilder(
     column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get teamId => $composableBuilder(
+    column: $table.teamId,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -1610,6 +2086,11 @@ class $$MatchesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get teamId => $composableBuilder(
+    column: $table.teamId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get opponentName => $composableBuilder(
     column: $table.opponentName,
     builder: (column) => ColumnOrderings(column),
@@ -1642,6 +2123,9 @@ class $$MatchesTableAnnotationComposer
   });
   GeneratedColumn<String> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get teamId =>
+      $composableBuilder(column: $table.teamId, builder: (column) => column);
 
   GeneratedColumn<String> get opponentName => $composableBuilder(
     column: $table.opponentName,
@@ -1690,6 +2174,7 @@ class $$MatchesTableTableManager
           updateCompanionCallback:
               ({
                 Value<String> id = const Value.absent(),
+                Value<String> teamId = const Value.absent(),
                 Value<String> opponentName = const Value.absent(),
                 Value<String?> eventName = const Value.absent(),
                 Value<DateTime> date = const Value.absent(),
@@ -1697,6 +2182,7 @@ class $$MatchesTableTableManager
                 Value<int> rowid = const Value.absent(),
               }) => MatchesCompanion(
                 id: id,
+                teamId: teamId,
                 opponentName: opponentName,
                 eventName: eventName,
                 date: date,
@@ -1706,6 +2192,7 @@ class $$MatchesTableTableManager
           createCompanionCallback:
               ({
                 required String id,
+                required String teamId,
                 required String opponentName,
                 Value<String?> eventName = const Value.absent(),
                 required DateTime date,
@@ -1713,6 +2200,7 @@ class $$MatchesTableTableManager
                 Value<int> rowid = const Value.absent(),
               }) => MatchesCompanion.insert(
                 id: id,
+                teamId: teamId,
                 opponentName: opponentName,
                 eventName: eventName,
                 date: date,
@@ -2308,6 +2796,8 @@ typedef $$RalliesTableProcessedTableManager =
 class $VBStatsDatabaseManager {
   final _$VBStatsDatabase _db;
   $VBStatsDatabaseManager(this._db);
+  $$TeamsTableTableManager get teams =>
+      $$TeamsTableTableManager(_db, _db.teams);
   $$MatchesTableTableManager get matches =>
       $$MatchesTableTableManager(_db, _db.matches);
   $$SetsTableTableManager get sets => $$SetsTableTableManager(_db, _db.sets);

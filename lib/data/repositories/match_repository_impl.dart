@@ -17,6 +17,22 @@ class MatchRepositoryImpl implements MatchRepository {
     return entities
         .map((e) => Match(
               id: e.id,
+              teamId: e.teamId,
+              opponentName: e.opponentName,
+              eventName: e.eventName,
+              date: e.date,
+              createdAt: e.createdAt,
+            ))
+        .toList();
+  }
+
+  @override
+  Future<List<Match>> getMatchesByTeam(String teamId) async {
+    final entities = await database.getMatchesByTeam(teamId);
+    return entities
+        .map((e) => Match(
+              id: e.id,
+              teamId: e.teamId,
               opponentName: e.opponentName,
               eventName: e.eventName,
               date: e.date,
@@ -31,6 +47,7 @@ class MatchRepositoryImpl implements MatchRepository {
     if (entity == null) return null;
     return Match(
       id: entity.id,
+      teamId: entity.teamId,
       opponentName: entity.opponentName,
       eventName: entity.eventName,
       date: entity.date,
@@ -39,11 +56,12 @@ class MatchRepositoryImpl implements MatchRepository {
   }
 
   @override
-  Future<String> createMatch(String opponentName, {String? eventName}) async {
+  Future<String> createMatch(String teamId, String teamId, String opponentName, {String? eventName}) async {
     final id = const Uuid().v4();
     final now = DateTime.now();
     await database.insertMatch(MatchesCompanion(
       id: Value(id),
+      teamId: Value(teamId),
       opponentName: Value(opponentName),
       eventName: Value(eventName),
       date: Value(now),
@@ -56,6 +74,7 @@ class MatchRepositoryImpl implements MatchRepository {
   Future<void> updateMatch(Match match) async {
     await database.updateMatch(MatchesCompanion(
       id: Value(match.id),
+      teamId: Value(match.teamId),
       opponentName: Value(match.opponentName),
       eventName: Value(match.eventName),
       date: Value(match.date),

@@ -1,7 +1,20 @@
 import 'enums.dart';
 
+class Team {
+  final String id;
+  final String name;
+  final DateTime createdAt;
+
+  Team({
+    required this.id,
+    required this.name,
+    required this.createdAt,
+  });
+}
+
 class Match {
   final String id;
+  final String teamId;
   final String opponentName;
   final String? eventName;
   final DateTime date;
@@ -9,6 +22,7 @@ class Match {
 
   Match({
     required this.id,
+    required this.teamId,
     required this.opponentName,
     this.eventName,
     required this.date,

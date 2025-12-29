@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:vbstats/presentation/screens/new_match_screen.dart';
-import 'package:vbstats/presentation/screens/matches_list_screen.dart';
+import 'package:vbstats/presentation/screens/teams_list_screen.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -26,24 +25,12 @@ class HomeScreen extends ConsumerWidget {
               onPressed: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (context) => const NewMatchScreen(),
+                    builder: (context) => const TeamsListScreen(),
                   ),
                 );
               },
-              icon: const Icon(Icons.add),
-              label: const Text('New Match'),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton.icon(
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => const MatchesListScreen(),
-                  ),
-                );
-              },
-              icon: const Icon(Icons.list),
-              label: const Text('View Matches'),
+              icon: const Icon(Icons.groups),
+              label: const Text('My Teams'),
             ),
           ],
         ),
