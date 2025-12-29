@@ -6,6 +6,7 @@ import 'package:vbstats/presentation/providers/match_providers.dart';
 import 'package:vbstats/presentation/providers/database_providers.dart';
 import 'package:vbstats/presentation/screens/set_start_screen.dart';
 import 'package:vbstats/presentation/screens/live_set_screen.dart';
+import 'package:vbstats/core/services/match_import_export_service.dart';
 
 class MatchDetailScreen extends ConsumerStatefulWidget {
   final Match match;
@@ -37,6 +38,11 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
           IconButton(
             icon: const Icon(Icons.edit),
             onPressed: () => _showEditMatchDialog(context, ref),
+          ),
+          IconButton(
+            icon: const Icon(Icons.upload),
+            onPressed: () => _exportMatch(context, ref),
+            tooltip: 'Export Match',
           ),
         ],
       ),
@@ -292,5 +298,32 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _exportMatch(BuildContext context, WidgetRef ref) async {
+    try {
+      final repo = await ref.read(matchRepositoryProvider.future);
+      final service = MatchImportExportService(repo);
+      
+      await service.exportMatch(currentMatch.id);
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Match exported successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Export failed: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 }

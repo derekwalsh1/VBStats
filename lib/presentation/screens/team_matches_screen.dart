@@ -5,6 +5,7 @@ import 'package:vbstats/domain/entities/match_entities.dart';
 import 'package:vbstats/presentation/providers/team_providers.dart';
 import 'package:vbstats/presentation/providers/database_providers.dart';
 import 'package:vbstats/presentation/screens/match_detail_screen.dart';
+import 'package:vbstats/core/services/match_import_export_service.dart';
 
 class TeamMatchesScreen extends ConsumerWidget {
   final Team team;
@@ -19,6 +20,40 @@ class TeamMatchesScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(team.name),
         centerTitle: true,
+        actions: [
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.more_vert),
+            onSelected: (value) async {
+              if (value == 'export') {
+                await _exportMatches(context, ref);
+              } else if (value == 'import') {
+                await _importMatches(context, ref);
+              }
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'export',
+                child: Row(
+                  children: [
+                    Icon(Icons.upload),
+                    SizedBox(width: 8),
+                    Text('Export Matches'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'import',
+                child: Row(
+                  children: [
+                    Icon(Icons.download),
+                    SizedBox(width: 8),
+                    Text('Import Matches'),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
       body: matchesAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -162,5 +197,62 @@ class TeamMatchesScreen extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  Future<void> _exportMatches(BuildContext context, WidgetRef ref) async {
+    try {
+      final repo = await ref.read(matchRepositoryProvider.future);
+      final service = MatchImportExportService(repo);
+      
+      await service.exportTeamMatches(team.id);
+      
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Matches exported successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Export failed: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _importMatches(BuildContext context, WidgetRef ref) async {
+    try {
+      final repo = await ref.read(matchRepositoryProvider.future);
+      final service = MatchImportExportService(repo);
+      
+      final count = await service.importMatches(team.id);
+      
+      // Refresh the matches list
+      ref.invalidate(teamMatchesProvider(team.id));
+      
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Successfully imported $count ${count == 1 ? 'match' : 'matches'}'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Import failed: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 }
