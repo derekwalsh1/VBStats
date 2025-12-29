@@ -78,7 +78,7 @@ class LiveSetScreen extends ConsumerWidget {
                   // Score, rotation, and serve-receive status
                   SizedBox(
                     width: isTablet ? (constraints.maxWidth - 36) / 2 : constraints.maxWidth - 24,
-                    child: _buildScoreCard(liveSetState),
+                    child: _buildScoreCard(liveSetState, ref),
                   ),
                   // Scoring buttons
                   SizedBox(
@@ -129,7 +129,12 @@ class LiveSetScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildScoreCard(LiveSetState state) {
+  Widget _buildScoreCard(LiveSetState state, WidgetRef ref) {
+    final ourT1Used = state.set.ourTimeoutsUsed >= 1;
+    final ourT2Used = state.set.ourTimeoutsUsed >= 2;
+    final oppT1Used = state.set.oppTimeoutsUsed >= 1;
+    final oppT2Used = state.set.oppTimeoutsUsed >= 2;
+    
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -139,13 +144,63 @@ class LiveSetScreen extends ConsumerWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
+                // Our timeout buttons (left of our score)
+                Column(
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        if (ourT1Used) {
+                          // Undo T1
+                          ref.read(liveSetProvider(setId).notifier).useTimeout(true, 0);
+                        } else {
+                          // Use T1
+                          ref.read(liveSetProvider(setId).notifier).useTimeout(true, 1);
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: ourT1Used ? Colors.grey.shade400 : Colors.blue,
+                        foregroundColor: ourT1Used ? Colors.grey.shade600 : Colors.white,
+                        fixedSize: const Size(60, 60),
+                        padding: EdgeInsets.zero,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: const Text('T1', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    ),
+                    const SizedBox(height: 4),
+                    ElevatedButton(
+                      onPressed: ourT1Used ? () {
+                        if (ourT2Used) {
+                          // Undo T2
+                          ref.read(liveSetProvider(setId).notifier).useTimeout(true, 1);
+                        } else {
+                          // Use T2
+                          ref.read(liveSetProvider(setId).notifier).useTimeout(true, 2);
+                        }
+                      } : null,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: ourT2Used ? Colors.grey.shade400 : Colors.blue,
+                        foregroundColor: ourT2Used ? Colors.grey.shade600 : Colors.white,
+                        disabledBackgroundColor: Colors.grey.shade300,
+                        disabledForegroundColor: Colors.grey.shade500,
+                        fixedSize: const Size(60, 60),
+                        padding: EdgeInsets.zero,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: const Text('T2', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    ),
+                  ],
+                ),
                 Column(
                   children: [
                     const Text('US', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
                     Text(
                       '${state.set.ourScore}',
                       style: const TextStyle(
-                        fontSize: 36,
+                        fontSize: 72,
                         fontWeight: FontWeight.w900,
                       ),
                     ),
@@ -158,9 +213,59 @@ class LiveSetScreen extends ConsumerWidget {
                     Text(
                       '${state.set.oppScore}',
                       style: const TextStyle(
-                        fontSize: 36,
+                        fontSize: 72,
                         fontWeight: FontWeight.w900,
                       ),
+                    ),
+                  ],
+                ),
+                // Their timeout buttons (right of their score)
+                Column(
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        if (oppT1Used) {
+                          // Undo T1
+                          ref.read(liveSetProvider(setId).notifier).useTimeout(false, 0);
+                        } else {
+                          // Use T1
+                          ref.read(liveSetProvider(setId).notifier).useTimeout(false, 1);
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: oppT1Used ? Colors.grey.shade400 : Colors.red,
+                        foregroundColor: oppT1Used ? Colors.grey.shade600 : Colors.white,
+                        fixedSize: const Size(60, 60),
+                        padding: EdgeInsets.zero,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: const Text('T1', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    ),
+                    const SizedBox(height: 4),
+                    ElevatedButton(
+                      onPressed: oppT1Used ? () {
+                        if (oppT2Used) {
+                          // Undo T2
+                          ref.read(liveSetProvider(setId).notifier).useTimeout(false, 1);
+                        } else {
+                          // Use T2
+                          ref.read(liveSetProvider(setId).notifier).useTimeout(false, 2);
+                        }
+                      } : null,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: oppT2Used ? Colors.grey.shade400 : Colors.red,
+                        foregroundColor: oppT2Used ? Colors.grey.shade600 : Colors.white,
+                        disabledBackgroundColor: Colors.grey.shade300,
+                        disabledForegroundColor: Colors.grey.shade500,
+                        fixedSize: const Size(60, 60),
+                        padding: EdgeInsets.zero,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: const Text('T2', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                     ),
                   ],
                 ),

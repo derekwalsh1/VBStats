@@ -450,6 +450,30 @@ class $SetsTable extends Sets with TableInfo<$SetsTable, SetEntity> {
     requiredDuringInsert: false,
     defaultValue: const Constant(0),
   );
+  static const VerificationMeta _ourTimeoutsUsedMeta = const VerificationMeta(
+    'ourTimeoutsUsed',
+  );
+  @override
+  late final GeneratedColumn<int> ourTimeoutsUsed = GeneratedColumn<int>(
+    'our_timeouts_used',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _oppTimeoutsUsedMeta = const VerificationMeta(
+    'oppTimeoutsUsed',
+  );
+  @override
+  late final GeneratedColumn<int> oppTimeoutsUsed = GeneratedColumn<int>(
+    'opp_timeouts_used',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -470,6 +494,8 @@ class $SetsTable extends Sets with TableInfo<$SetsTable, SetEntity> {
     startServeReceiveState,
     ourScore,
     oppScore,
+    ourTimeoutsUsed,
+    oppTimeoutsUsed,
     createdAt,
   ];
   @override
@@ -539,6 +565,24 @@ class $SetsTable extends Sets with TableInfo<$SetsTable, SetEntity> {
         oppScore.isAcceptableOrUnknown(data['opp_score']!, _oppScoreMeta),
       );
     }
+    if (data.containsKey('our_timeouts_used')) {
+      context.handle(
+        _ourTimeoutsUsedMeta,
+        ourTimeoutsUsed.isAcceptableOrUnknown(
+          data['our_timeouts_used']!,
+          _ourTimeoutsUsedMeta,
+        ),
+      );
+    }
+    if (data.containsKey('opp_timeouts_used')) {
+      context.handle(
+        _oppTimeoutsUsedMeta,
+        oppTimeoutsUsed.isAcceptableOrUnknown(
+          data['opp_timeouts_used']!,
+          _oppTimeoutsUsedMeta,
+        ),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -588,6 +632,14 @@ class $SetsTable extends Sets with TableInfo<$SetsTable, SetEntity> {
         DriftSqlType.int,
         data['${effectivePrefix}opp_score'],
       )!,
+      ourTimeoutsUsed: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}our_timeouts_used'],
+      )!,
+      oppTimeoutsUsed: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}opp_timeouts_used'],
+      )!,
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -609,6 +661,8 @@ class SetEntity extends DataClass implements Insertable<SetEntity> {
   final String startServeReceiveState;
   final int ourScore;
   final int oppScore;
+  final int ourTimeoutsUsed;
+  final int oppTimeoutsUsed;
   final DateTime createdAt;
   const SetEntity({
     required this.id,
@@ -618,6 +672,8 @@ class SetEntity extends DataClass implements Insertable<SetEntity> {
     required this.startServeReceiveState,
     required this.ourScore,
     required this.oppScore,
+    required this.ourTimeoutsUsed,
+    required this.oppTimeoutsUsed,
     required this.createdAt,
   });
   @override
@@ -630,6 +686,8 @@ class SetEntity extends DataClass implements Insertable<SetEntity> {
     map['start_serve_receive_state'] = Variable<String>(startServeReceiveState);
     map['our_score'] = Variable<int>(ourScore);
     map['opp_score'] = Variable<int>(oppScore);
+    map['our_timeouts_used'] = Variable<int>(ourTimeoutsUsed);
+    map['opp_timeouts_used'] = Variable<int>(oppTimeoutsUsed);
     map['created_at'] = Variable<DateTime>(createdAt);
     return map;
   }
@@ -643,6 +701,8 @@ class SetEntity extends DataClass implements Insertable<SetEntity> {
       startServeReceiveState: Value(startServeReceiveState),
       ourScore: Value(ourScore),
       oppScore: Value(oppScore),
+      ourTimeoutsUsed: Value(ourTimeoutsUsed),
+      oppTimeoutsUsed: Value(oppTimeoutsUsed),
       createdAt: Value(createdAt),
     );
   }
@@ -662,6 +722,8 @@ class SetEntity extends DataClass implements Insertable<SetEntity> {
       ),
       ourScore: serializer.fromJson<int>(json['ourScore']),
       oppScore: serializer.fromJson<int>(json['oppScore']),
+      ourTimeoutsUsed: serializer.fromJson<int>(json['ourTimeoutsUsed']),
+      oppTimeoutsUsed: serializer.fromJson<int>(json['oppTimeoutsUsed']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
     );
   }
@@ -678,6 +740,8 @@ class SetEntity extends DataClass implements Insertable<SetEntity> {
       ),
       'ourScore': serializer.toJson<int>(ourScore),
       'oppScore': serializer.toJson<int>(oppScore),
+      'ourTimeoutsUsed': serializer.toJson<int>(ourTimeoutsUsed),
+      'oppTimeoutsUsed': serializer.toJson<int>(oppTimeoutsUsed),
       'createdAt': serializer.toJson<DateTime>(createdAt),
     };
   }
@@ -690,6 +754,8 @@ class SetEntity extends DataClass implements Insertable<SetEntity> {
     String? startServeReceiveState,
     int? ourScore,
     int? oppScore,
+    int? ourTimeoutsUsed,
+    int? oppTimeoutsUsed,
     DateTime? createdAt,
   }) => SetEntity(
     id: id ?? this.id,
@@ -700,6 +766,8 @@ class SetEntity extends DataClass implements Insertable<SetEntity> {
         startServeReceiveState ?? this.startServeReceiveState,
     ourScore: ourScore ?? this.ourScore,
     oppScore: oppScore ?? this.oppScore,
+    ourTimeoutsUsed: ourTimeoutsUsed ?? this.ourTimeoutsUsed,
+    oppTimeoutsUsed: oppTimeoutsUsed ?? this.oppTimeoutsUsed,
     createdAt: createdAt ?? this.createdAt,
   );
   SetEntity copyWithCompanion(SetsCompanion data) {
@@ -715,6 +783,12 @@ class SetEntity extends DataClass implements Insertable<SetEntity> {
           : this.startServeReceiveState,
       ourScore: data.ourScore.present ? data.ourScore.value : this.ourScore,
       oppScore: data.oppScore.present ? data.oppScore.value : this.oppScore,
+      ourTimeoutsUsed: data.ourTimeoutsUsed.present
+          ? data.ourTimeoutsUsed.value
+          : this.ourTimeoutsUsed,
+      oppTimeoutsUsed: data.oppTimeoutsUsed.present
+          ? data.oppTimeoutsUsed.value
+          : this.oppTimeoutsUsed,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
     );
   }
@@ -729,6 +803,8 @@ class SetEntity extends DataClass implements Insertable<SetEntity> {
           ..write('startServeReceiveState: $startServeReceiveState, ')
           ..write('ourScore: $ourScore, ')
           ..write('oppScore: $oppScore, ')
+          ..write('ourTimeoutsUsed: $ourTimeoutsUsed, ')
+          ..write('oppTimeoutsUsed: $oppTimeoutsUsed, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
@@ -743,6 +819,8 @@ class SetEntity extends DataClass implements Insertable<SetEntity> {
     startServeReceiveState,
     ourScore,
     oppScore,
+    ourTimeoutsUsed,
+    oppTimeoutsUsed,
     createdAt,
   );
   @override
@@ -756,6 +834,8 @@ class SetEntity extends DataClass implements Insertable<SetEntity> {
           other.startServeReceiveState == this.startServeReceiveState &&
           other.ourScore == this.ourScore &&
           other.oppScore == this.oppScore &&
+          other.ourTimeoutsUsed == this.ourTimeoutsUsed &&
+          other.oppTimeoutsUsed == this.oppTimeoutsUsed &&
           other.createdAt == this.createdAt);
 }
 
@@ -767,6 +847,8 @@ class SetsCompanion extends UpdateCompanion<SetEntity> {
   final Value<String> startServeReceiveState;
   final Value<int> ourScore;
   final Value<int> oppScore;
+  final Value<int> ourTimeoutsUsed;
+  final Value<int> oppTimeoutsUsed;
   final Value<DateTime> createdAt;
   final Value<int> rowid;
   const SetsCompanion({
@@ -777,6 +859,8 @@ class SetsCompanion extends UpdateCompanion<SetEntity> {
     this.startServeReceiveState = const Value.absent(),
     this.ourScore = const Value.absent(),
     this.oppScore = const Value.absent(),
+    this.ourTimeoutsUsed = const Value.absent(),
+    this.oppTimeoutsUsed = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
@@ -788,6 +872,8 @@ class SetsCompanion extends UpdateCompanion<SetEntity> {
     required String startServeReceiveState,
     this.ourScore = const Value.absent(),
     this.oppScore = const Value.absent(),
+    this.ourTimeoutsUsed = const Value.absent(),
+    this.oppTimeoutsUsed = const Value.absent(),
     required DateTime createdAt,
     this.rowid = const Value.absent(),
   }) : id = Value(id),
@@ -804,6 +890,8 @@ class SetsCompanion extends UpdateCompanion<SetEntity> {
     Expression<String>? startServeReceiveState,
     Expression<int>? ourScore,
     Expression<int>? oppScore,
+    Expression<int>? ourTimeoutsUsed,
+    Expression<int>? oppTimeoutsUsed,
     Expression<DateTime>? createdAt,
     Expression<int>? rowid,
   }) {
@@ -816,6 +904,8 @@ class SetsCompanion extends UpdateCompanion<SetEntity> {
         'start_serve_receive_state': startServeReceiveState,
       if (ourScore != null) 'our_score': ourScore,
       if (oppScore != null) 'opp_score': oppScore,
+      if (ourTimeoutsUsed != null) 'our_timeouts_used': ourTimeoutsUsed,
+      if (oppTimeoutsUsed != null) 'opp_timeouts_used': oppTimeoutsUsed,
       if (createdAt != null) 'created_at': createdAt,
       if (rowid != null) 'rowid': rowid,
     });
@@ -829,6 +919,8 @@ class SetsCompanion extends UpdateCompanion<SetEntity> {
     Value<String>? startServeReceiveState,
     Value<int>? ourScore,
     Value<int>? oppScore,
+    Value<int>? ourTimeoutsUsed,
+    Value<int>? oppTimeoutsUsed,
     Value<DateTime>? createdAt,
     Value<int>? rowid,
   }) {
@@ -841,6 +933,8 @@ class SetsCompanion extends UpdateCompanion<SetEntity> {
           startServeReceiveState ?? this.startServeReceiveState,
       ourScore: ourScore ?? this.ourScore,
       oppScore: oppScore ?? this.oppScore,
+      ourTimeoutsUsed: ourTimeoutsUsed ?? this.ourTimeoutsUsed,
+      oppTimeoutsUsed: oppTimeoutsUsed ?? this.oppTimeoutsUsed,
       createdAt: createdAt ?? this.createdAt,
       rowid: rowid ?? this.rowid,
     );
@@ -872,6 +966,12 @@ class SetsCompanion extends UpdateCompanion<SetEntity> {
     if (oppScore.present) {
       map['opp_score'] = Variable<int>(oppScore.value);
     }
+    if (ourTimeoutsUsed.present) {
+      map['our_timeouts_used'] = Variable<int>(ourTimeoutsUsed.value);
+    }
+    if (oppTimeoutsUsed.present) {
+      map['opp_timeouts_used'] = Variable<int>(oppTimeoutsUsed.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -891,6 +991,8 @@ class SetsCompanion extends UpdateCompanion<SetEntity> {
           ..write('startServeReceiveState: $startServeReceiveState, ')
           ..write('ourScore: $ourScore, ')
           ..write('oppScore: $oppScore, ')
+          ..write('ourTimeoutsUsed: $ourTimeoutsUsed, ')
+          ..write('oppTimeoutsUsed: $oppTimeoutsUsed, ')
           ..write('createdAt: $createdAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -1651,6 +1753,8 @@ typedef $$SetsTableCreateCompanionBuilder =
       required String startServeReceiveState,
       Value<int> ourScore,
       Value<int> oppScore,
+      Value<int> ourTimeoutsUsed,
+      Value<int> oppTimeoutsUsed,
       required DateTime createdAt,
       Value<int> rowid,
     });
@@ -1663,6 +1767,8 @@ typedef $$SetsTableUpdateCompanionBuilder =
       Value<String> startServeReceiveState,
       Value<int> ourScore,
       Value<int> oppScore,
+      Value<int> ourTimeoutsUsed,
+      Value<int> oppTimeoutsUsed,
       Value<DateTime> createdAt,
       Value<int> rowid,
     });
@@ -1708,6 +1814,16 @@ class $$SetsTableFilterComposer
 
   ColumnFilters<int> get oppScore => $composableBuilder(
     column: $table.oppScore,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get ourTimeoutsUsed => $composableBuilder(
+    column: $table.ourTimeoutsUsed,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get oppTimeoutsUsed => $composableBuilder(
+    column: $table.oppTimeoutsUsed,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -1761,6 +1877,16 @@ class $$SetsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get ourTimeoutsUsed => $composableBuilder(
+    column: $table.ourTimeoutsUsed,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get oppTimeoutsUsed => $composableBuilder(
+    column: $table.oppTimeoutsUsed,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -1801,6 +1927,16 @@ class $$SetsTableAnnotationComposer
   GeneratedColumn<int> get oppScore =>
       $composableBuilder(column: $table.oppScore, builder: (column) => column);
 
+  GeneratedColumn<int> get ourTimeoutsUsed => $composableBuilder(
+    column: $table.ourTimeoutsUsed,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get oppTimeoutsUsed => $composableBuilder(
+    column: $table.oppTimeoutsUsed,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
 }
@@ -1840,6 +1976,8 @@ class $$SetsTableTableManager
                 Value<String> startServeReceiveState = const Value.absent(),
                 Value<int> ourScore = const Value.absent(),
                 Value<int> oppScore = const Value.absent(),
+                Value<int> ourTimeoutsUsed = const Value.absent(),
+                Value<int> oppTimeoutsUsed = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => SetsCompanion(
@@ -1850,6 +1988,8 @@ class $$SetsTableTableManager
                 startServeReceiveState: startServeReceiveState,
                 ourScore: ourScore,
                 oppScore: oppScore,
+                ourTimeoutsUsed: ourTimeoutsUsed,
+                oppTimeoutsUsed: oppTimeoutsUsed,
                 createdAt: createdAt,
                 rowid: rowid,
               ),
@@ -1862,6 +2002,8 @@ class $$SetsTableTableManager
                 required String startServeReceiveState,
                 Value<int> ourScore = const Value.absent(),
                 Value<int> oppScore = const Value.absent(),
+                Value<int> ourTimeoutsUsed = const Value.absent(),
+                Value<int> oppTimeoutsUsed = const Value.absent(),
                 required DateTime createdAt,
                 Value<int> rowid = const Value.absent(),
               }) => SetsCompanion.insert(
@@ -1872,6 +2014,8 @@ class $$SetsTableTableManager
                 startServeReceiveState: startServeReceiveState,
                 ourScore: ourScore,
                 oppScore: oppScore,
+                ourTimeoutsUsed: ourTimeoutsUsed,
+                oppTimeoutsUsed: oppTimeoutsUsed,
                 createdAt: createdAt,
                 rowid: rowid,
               ),

@@ -130,22 +130,44 @@ class MomentumChartPainter extends CustomPainter {
       );
       phasePainter.layout();
 
+      // Create score difference label (e.g., +3, -2)
+      final scoreDiffLabel = point.cumulativeScoreDiff >= 0 
+          ? '+${point.cumulativeScoreDiff}' 
+          : '${point.cumulativeScoreDiff}';
+      final scoreDiffPainter = TextPainter(
+        text: TextSpan(
+          text: scoreDiffLabel,
+          style: TextStyle(
+            color: point.cumulativeScoreDiff >= 0 ? Colors.green.shade700 : Colors.red.shade700,
+            fontSize: 9,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        textDirection: TextDirection.ltr,
+      );
+      scoreDiffPainter.layout();
+
       // Position text: below the line for our points, above for opponent points
       final textX = x + (stepWidth - textPainter.width) / 2;
       final phaseX = x + (stepWidth - phasePainter.width) / 2;
+      final scoreDiffX = x + (stepWidth - scoreDiffPainter.width) / 2;
       
       if (point.weScored) {
-        // Below the line for our points: outcome then phase
+        // Our points: score diff above line, outcome and phase below line
+        final scoreDiffY = y - scoreDiffPainter.height - 2;
         final textY = y + 2;
         final phaseY = textY + textPainter.height + 1;
+        scoreDiffPainter.paint(canvas, Offset(scoreDiffX, scoreDiffY));
         textPainter.paint(canvas, Offset(textX, textY));
         phasePainter.paint(canvas, Offset(phaseX, phaseY));
       } else {
-        // Above the line for opponent points: phase then outcome
+        // Their points: phase and outcome above line, score diff below line
         final phaseY = y - textPainter.height - phasePainter.height - 3;
         final textY = y - textPainter.height - 2;
+        final scoreDiffY = y + 2;
         phasePainter.paint(canvas, Offset(phaseX, phaseY));
         textPainter.paint(canvas, Offset(textX, textY));
+        scoreDiffPainter.paint(canvas, Offset(scoreDiffX, scoreDiffY));
       }
     }
   }

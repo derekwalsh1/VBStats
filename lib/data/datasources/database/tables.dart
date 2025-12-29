@@ -23,6 +23,8 @@ class Sets extends Table {
   TextColumn get startServeReceiveState => text()(); // 'serve' or 'receive'
   IntColumn get ourScore => integer().withDefault(const Constant(0))();
   IntColumn get oppScore => integer().withDefault(const Constant(0))();
+  IntColumn get ourTimeoutsUsed => integer().withDefault(const Constant(0))();
+  IntColumn get oppTimeoutsUsed => integer().withDefault(const Constant(0))();
   DateTimeColumn get createdAt => dateTime()();
 
   @override

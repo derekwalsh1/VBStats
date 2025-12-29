@@ -8,7 +8,18 @@ class VBStatsDatabase extends _$VBStatsDatabase {
   VBStatsDatabase(QueryExecutor e) : super(e);
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+    onUpgrade: (migrator, from, to) async {
+      if (from == 1) {
+        // Add timeout columns to existing sets table
+        await migrator.addColumn(sets, sets.ourTimeoutsUsed);
+        await migrator.addColumn(sets, sets.oppTimeoutsUsed);
+      }
+    },
+  );
 
   // Match queries
   Future<List<MatchEntity>> getAllMatches() => select(matches).get();

@@ -121,6 +121,8 @@ class LiveSetNotifier extends StateNotifier<LiveSetState?> {
         startServeReceiveState: state!.set.startServeReceiveState,
         ourScore: newOurScore,
         oppScore: newOppScore,
+        ourTimeoutsUsed: state!.set.ourTimeoutsUsed,
+        oppTimeoutsUsed: state!.set.oppTimeoutsUsed,
         createdAt: state!.set.createdAt,
       );
 
@@ -163,6 +165,8 @@ class LiveSetNotifier extends StateNotifier<LiveSetState?> {
         startServeReceiveState: state!.set.startServeReceiveState,
         ourScore: newOurScore,
         oppScore: newOppScore,
+        ourTimeoutsUsed: state!.set.ourTimeoutsUsed,
+        oppTimeoutsUsed: state!.set.oppTimeoutsUsed,
         createdAt: state!.set.createdAt,
       );
 
@@ -172,6 +176,32 @@ class LiveSetNotifier extends StateNotifier<LiveSetState?> {
       await _loadSet();
     } catch (e) {
       debugPrint('Error undoing rally: $e');
+    }
+  }
+
+  Future<void> useTimeout(bool isOurs, int timeoutNumber) async {
+    if (state == null) return;
+    
+    try {
+      final repo = await ref.read(matchRepositoryProvider.future);
+      
+      final updatedSet = Set(
+        id: state!.set.id,
+        matchId: state!.set.matchId,
+        setIndex: state!.set.setIndex,
+        startRotation: state!.set.startRotation,
+        startServeReceiveState: state!.set.startServeReceiveState,
+        ourScore: state!.set.ourScore,
+        oppScore: state!.set.oppScore,
+        ourTimeoutsUsed: isOurs ? timeoutNumber : state!.set.ourTimeoutsUsed,
+        oppTimeoutsUsed: isOurs ? state!.set.oppTimeoutsUsed : timeoutNumber,
+        createdAt: state!.set.createdAt,
+      );
+      
+      await repo.updateSet(updatedSet);
+      await _loadSet();
+    } catch (e) {
+      debugPrint('Error using timeout: $e');
     }
   }
 }

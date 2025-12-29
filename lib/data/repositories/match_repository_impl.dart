@@ -88,6 +88,8 @@ class MatchRepositoryImpl implements MatchRepository {
                   : ServeReceiveState.receive,
               ourScore: e.ourScore,
               oppScore: e.oppScore,
+              ourTimeoutsUsed: e.ourTimeoutsUsed,
+              oppTimeoutsUsed: e.oppTimeoutsUsed,
               createdAt: e.createdAt,
             ))
         .toList();
@@ -107,6 +109,8 @@ class MatchRepositoryImpl implements MatchRepository {
           : ServeReceiveState.receive,
       ourScore: entity.ourScore,
       oppScore: entity.oppScore,
+      ourTimeoutsUsed: entity.ourTimeoutsUsed,
+      oppTimeoutsUsed: entity.oppTimeoutsUsed,
       createdAt: entity.createdAt,
     );
   }
@@ -141,6 +145,8 @@ class MatchRepositoryImpl implements MatchRepository {
               : 'receive'),
       ourScore: Value(set.ourScore),
       oppScore: Value(set.oppScore),
+      ourTimeoutsUsed: Value(set.ourTimeoutsUsed),
+      oppTimeoutsUsed: Value(set.oppTimeoutsUsed),
       createdAt: Value(set.createdAt),
     ));
   }

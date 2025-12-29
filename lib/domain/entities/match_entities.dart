@@ -26,6 +26,8 @@ class Set {
   final ServeReceiveState startServeReceiveState;
   final int ourScore;
   final int oppScore;
+  final int ourTimeoutsUsed;
+  final int oppTimeoutsUsed;
   final DateTime createdAt;
 
   Set({
@@ -36,6 +38,8 @@ class Set {
     required this.startServeReceiveState,
     required this.ourScore,
     required this.oppScore,
+    this.ourTimeoutsUsed = 0,
+    this.oppTimeoutsUsed = 0,
     required this.createdAt,
   });
 
