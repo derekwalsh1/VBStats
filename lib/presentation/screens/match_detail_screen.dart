@@ -31,7 +31,7 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(match.displayName),
+        title: Text(currentMatch.displayName),
         centerTitle: true,
         actions: [
           IconButton(
@@ -56,19 +56,19 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'vs ${match.opponentName}',
+                      'vs ${currentMatch.opponentName}',
                       style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     Text(
-                      DateFormat('MMMM d, yyyy').format(match.date),
+                      DateFormat('MMMM d, yyyy').format(currentMatch.date),
                       style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
                     ),
-                    if (match.eventName != null)
+                    if (currentMatch.eventName != null)
                       Text(
-                        match.eventName!,
+                        currentMatch.eventName!,
                         style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
                       ),
                   ],

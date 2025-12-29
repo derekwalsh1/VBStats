@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:vbstats/domain/entities/match_entities.dart';
 import 'package:vbstats/presentation/providers/team_providers.dart';
 import 'package:vbstats/presentation/providers/database_providers.dart';
 import 'package:vbstats/presentation/screens/team_matches_screen.dart';
