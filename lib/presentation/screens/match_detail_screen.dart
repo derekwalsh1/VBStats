@@ -305,7 +305,13 @@ class _MatchDetailScreenState extends ConsumerState<MatchDetailScreen> {
       final repo = await ref.read(matchRepositoryProvider.future);
       final service = MatchImportExportService(repo);
       
-      await service.exportMatch(currentMatch.id);
+      // Get screen bounds for iPad share position
+      final box = context.findRenderObject() as RenderBox?;
+      final sharePositionOrigin = box != null
+          ? box.localToGlobal(Offset.zero) & box.size
+          : null;
+      
+      await service.exportMatch(currentMatch.id, sharePositionOrigin: sharePositionOrigin);
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

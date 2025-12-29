@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:path_provider/path_provider.dart';
@@ -13,7 +14,7 @@ class MatchImportExportService {
   MatchImportExportService(this.matchRepository);
 
   /// Export a single match with all its sets and rallies
-  Future<void> exportMatch(String matchId) async {
+  Future<void> exportMatch(String matchId, {Rect? sharePositionOrigin}) async {
     final match = await matchRepository.getMatchById(matchId);
     if (match == null) throw Exception('Match not found');
 
@@ -63,11 +64,12 @@ class MatchImportExportService {
     await Share.shareXFiles(
       [XFile(file.path)],
       subject: 'VBStats Match Export - ${match.opponentName}',
+      sharePositionOrigin: sharePositionOrigin,
     );
   }
 
   /// Export all matches for a team
-  Future<void> exportTeamMatches(String teamId) async {
+  Future<void> exportTeamMatches(String teamId, {Rect? sharePositionOrigin}) async {
     final matches = await matchRepository.getMatchesByTeam(teamId);
     if (matches.isEmpty) throw Exception('No matches to export');
 
@@ -123,6 +125,7 @@ class MatchImportExportService {
     await Share.shareXFiles(
       [XFile(file.path)],
       subject: 'VBStats Team Matches Export',
+      sharePositionOrigin: sharePositionOrigin,
     );
   }
 

@@ -204,7 +204,13 @@ class TeamMatchesScreen extends ConsumerWidget {
       final repo = await ref.read(matchRepositoryProvider.future);
       final service = MatchImportExportService(repo);
       
-      await service.exportTeamMatches(team.id);
+      // Get screen bounds for iPad share position
+      final box = context.findRenderObject() as RenderBox?;
+      final sharePositionOrigin = box != null
+          ? box.localToGlobal(Offset.zero) & box.size
+          : null;
+      
+      await service.exportTeamMatches(team.id, sharePositionOrigin: sharePositionOrigin);
       
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
