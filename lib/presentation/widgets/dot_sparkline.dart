@@ -74,7 +74,10 @@ class DotSparklinePainter extends CustomPainter {
     for (final index in occurrenceIndices) {
       if (index < 0 || index >= totalRallies) continue;
       
-      final x = (index / (totalRallies - 1)) * size.width;
+      // Handle edge case where there's only 1 rally
+      final x = totalRallies == 1 
+          ? size.width / 2 
+          : (index / (totalRallies - 1)) * size.width;
       final y = size.height / 2;
       
       canvas.drawCircle(

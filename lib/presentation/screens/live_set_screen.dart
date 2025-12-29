@@ -40,7 +40,10 @@ class _LiveSetScreenState extends ConsumerState<LiveSetScreen> {
     if ((ourScore == 6 && oppScore == 7) || (ourScore == 7 && oppScore == 6)) {
       if (!_showingSixSevenOverlay) {
         _showingSixSevenOverlay = true;
-        _showSixSevenOverlay();
+        // Schedule dialog to show after build completes
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _showSixSevenOverlay();
+        });
       }
     }
   }
